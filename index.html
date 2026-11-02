@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b0c0f">
+  <meta name="description" content="Регулярные межгородские перевозки Магнитогорск — Оренбург на комфортных минивэнах. Бронирование мест онлайн.">
   <title>УралWay — Межгородские пассажирские перевозки</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -60,6 +62,15 @@
             <li><i class="fa-solid fa-check"></i> Опытные водители</li>
             <li><i class="fa-solid fa-check"></i> Безопасность в пути</li>
           </ul>
+          <div class="hero__actions">
+            <a href="#booking" class="btn btn--cta">Забронировать место</a>
+            <a href="#routes" class="btn btn--outline">Маршруты и цены</a>
+          </div>
+          <div class="hero__facts">
+            <div class="hero__fact"><b>436 км</b><span>весь маршрут</span></div>
+            <div class="hero__fact"><b>8</b><span>городов и сёл</span></div>
+            <div class="hero__fact"><b>до 8</b><span>мест в рейсе</span></div>
+          </div>
         </div>
         <div class="hero__media">
           <div class="hero-slider" id="heroSlider">
@@ -91,7 +102,8 @@
     <!-- ФОРМА БРОНИРОВАНИЯ -->
     <section class="booking" id="booking">
       <div class="container">
-        <h2 class="section-title section-title--left">Запишитесь на поездку:</h2>
+        <h2 class="section-title section-title--left">Запишитесь на поездку</h2>
+        <p class="section-lead">Выберите рейс и добавьте пассажиров — стоимость рассчитается автоматически.</p>
         <form class="booking-form" id="bookingForm" novalidate>
           <div class="booking-form__grid main-info-grid">
             <div class="field">
@@ -109,7 +121,7 @@
               <input type="email" id="fEmail" placeholder="ivan@mail.ru">
               <span class="field__error"></span>
             </div>
-            <div class="field" style="grid-column: 1 / -1;">
+            <div class="field field--wide">
               <label for="fTrip">Выберите рейс *</label>
               <select id="fTrip">
                 <option value="">Загрузка доступных рейсов...</option>
@@ -118,9 +130,9 @@
             </div>
           </div>
 
-          <div class="passengers-header" style="flex-wrap: wrap; gap: 15px;">
-            <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-              <h3 style="margin: 0;">Пассажиры и маршруты</h3>
+          <div class="passengers-header">
+            <div class="passengers-header__left">
+              <h3>Пассажиры и маршруты</h3>
               
               <div class="total-passengers-counter">
                 <div class="counter-header">
@@ -161,7 +173,7 @@
                 </select>
                 <span class="field__error"></span>
               </div>
-              <div class="field" style="max-width:120px;">
+              <div class="field">
                 <label>Мест *</label>
                 <select class="seats-select">
                   <option value="1">1</option><option value="2">2</option><option value="3">3</option>
@@ -343,8 +355,8 @@
           <button class="btn btn--cta" id="openReviewBtn">Оставить отзыв</button>
         </div>
         <div class="reviews__grid" id="reviewsList"></div>
-      <!-- НОВАЯ КНОПКА -->
-        <div style="text-align: center; margin-top: 30px;">
+      <!-- Кнопка «Показать все отзывы» -->
+        <div class="reviews__more">
           <button class="btn btn--outline" id="showMoreReviewsBtn" style="display: none;">Показать все отзывы</button>
         </div>
       </div>
@@ -382,7 +394,7 @@
             <li><i class="fa-solid fa-phone"></i> <a href="tel:+79194006414">+7 (919) 400-64-14</a></li>
             <li><i class="fa-solid fa-phone"></i> <a href="tel:+79193251539">+7 (919) 325-15-39</a></li>
             <li>
-              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" style="margin-top:4px; flex-shrink:0;">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" style="margin-top:5px; flex-shrink:0;">
                 <path d="M15.684 0H8.316C1.592 0 0 1.592 0 8.316v7.368C0 22.408 1.592 24 8.316 24h7.368C22.408 24 24 22.408 24 15.684V8.316C24 1.592 22.408 0 15.684 0zm3.692 17.123h-1.744c-.66 0-.864-.525-2.05-1.727-1.033-1-1.49-1.135-1.744-1.135-.356 0-.458.102-.458.593v1.575c0 .424-.135.678-1.253.678-1.846 0-3.896-1.118-5.335-3.202C4.624 10.857 4.03 8.57 4.03 8.096c0-.254.102-.491.593-.491h1.744c.44 0 .61.203.78.677.864 2.49 2.303 4.675 2.896 4.675.22 0 .322-.102.322-.66V9.721c-.068-1.186-.695-1.287-.695-1.71 0-.203.17-.407.44-.407h2.744c.373 0 .508.203.508.643v3.473c0 .372.17.508.271.508.22 0 .407-.136.813-.542 1.27-1.422 2.18-3.61 2.18-3.61.119-.254.322-.491.762-.491h1.744c.525 0 .644.271.525.643-.22 1.017-2.354 4.031-2.354 4.031-.186.305-.254.44 0 .78.186.254.796.78 1.203 1.253.745.847 1.32 1.558 1.473 2.05.17.49-.085.744-.593.744z"/>
               </svg>
               <a href="https://vk.ru/club214789332" target="_blank" style="display:flex; align-items:center; gap:10px;">Мы ВКонтакте</a>
@@ -420,7 +432,7 @@
         </div>
 
       </div>
-      <div class="footer__bottom">© 2024 УралWay. Все права защищены.</div>
+      <div class="footer__bottom">© 2026 УралWay. Все права защищены.</div>
     </div>
   </footer>
 
