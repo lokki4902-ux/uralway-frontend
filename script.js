@@ -5,7 +5,7 @@
   const $  = (sel, ctx = document) => ctx.querySelector(sel);
   const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
 
-  const API_URL = 'https://uralway-api.de1.netrun.io'; // Твой сервер
+  const API_URL = 'https://uralway-api.de1.netrun.io';
 
   // ---- БУРГЕР-МЕНЮ ----
   const burger = $('#burger');
