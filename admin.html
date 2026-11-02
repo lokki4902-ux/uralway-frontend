@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b0c0f">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Панель управления — УралWay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-body">
+
+  <!-- ВХОД -->
+  <div class="admin-login" id="adminLogin">
+    <form class="login-card" id="loginForm" autocomplete="off">
+      <div class="login-card__icon"><i class="fa-solid fa-lock"></i></div>
+      <h1 class="login-card__title">Панель управления</h1>
+      <p class="login-card__subtitle">Введите пароль для доступа</p>
+      <div class="field field--login"><input type="password" id="adminPassword" placeholder="Пароль"></div>
+      <button type="submit" class="btn btn--cta btn--block">Войти</button>
+      <p class="login-card__error" id="loginError" hidden>Неверный пароль.</p>
+      <a href="index.html" class="login-card__back"><i class="fa-solid fa-arrow-left"></i> На главную</a>
+    </form>
+  </div>
+
+  <!-- ПРИЛОЖЕНИЕ -->
+  <div class="admin-app" id="adminApp" hidden>
+
+    <!-- БОКОВОЕ МЕНЮ -->
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <span class="admin-brand__icon"><i class="fa-solid fa-route"></i></span>
+        <span class="admin-brand__text">УралWay<small>панель управления</small></span>
+      </div>
+
+      <nav class="admin-nav" aria-label="Разделы">
+        <span class="admin-nav__label">Разделы</span>
+        <button class="btn btn--cta tab-btn active" data-tab="bookings"><i class="fa-solid fa-ticket"></i><span>Заявки и рейсы</span></button>
+
+        <!-- ВРЕМЕННО СКРЫТО: РАССЫЛКА
+        <button class="btn btn--outline tab-btn" data-tab="subscribers"><i class="fa-solid fa-envelope-open-text"></i><span>Подписчики (Email)</span></button>
+        -->
+        <button class="btn btn--outline tab-btn" data-tab="banned"><i class="fa-solid fa-user-slash"></i><span>Бан-лист</span></button>
+      </nav>
+
+      <div class="admin-sidebar__foot">
+        <a href="index.html" class="admin-sidebar__link" target="_blank"><i class="fa-solid fa-globe"></i><span>Открыть сайт</span></a>
+        <button class="btn btn--gold-outline btn--sm" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i><span>Выйти</span></button>
+      </div>
+    </aside>
+
+    <!-- ОСНОВНАЯ ОБЛАСТЬ -->
+    <main class="admin-main">
+      <div class="admin-content">
+
+        <!-- ДОБАВЛЕНИЕ И УПРАВЛЕНИЕ РЕЙСАМИ -->
+        <div class="admin-split">
+          <div class="admin-section tab-content active" id="tab-bookings">
+            <h2 class="admin-section__title"><i class="fa-solid fa-plus"></i> Добавить цикл поездки</h2>
+            <p class="admin-section__hint">Создаются два рейса: «Туда» и «Обратно». Водитель у них общий, у каждого рейса своя шкала занятости мест.</p>
+            <form id="addAnnouncementForm" class="admin-form">
+              <div class="field field--wide">
+                <label>Номер водителя * (на оба рейса)</label>
+                <select id="aDriverId" required>
+                  <option value="1">Водитель 1 (Черный)</option>
+                  <option value="2">Водитель 2 (Серебристый)</option>
+                </select>
+              </div>
+
+              <div class="cycle-leg cycle-leg--forward">
+                <h3 class="cycle-leg__title"><i class="fa-solid fa-arrow-right"></i> Туда <small>Магнитогорск ➔ Оренбург</small></h3>
+                <div class="field"><label>Дата *</label><input type="date" id="aDate" required></div>
+                <div class="field"><label>Время старта *</label><input type="time" id="aTime" required></div>
+                <div class="field field--wide"><label>Адрес старта *</label><input type="text" id="aAddress" required placeholder="г. Магнитогорск, Гостиный двор"></div>
+              </div>
+
+              <div class="cycle-leg cycle-leg--return">
+                <h3 class="cycle-leg__title"><i class="fa-solid fa-arrow-left"></i> Обратно <small>Оренбург ➔ Магнитогорск</small></h3>
+                <div class="field"><label>Дата * (может отличаться)</label><input type="date" id="aReturnDate" required></div>
+                <div class="field"><label>Время старта *</label><input type="time" id="aReturnTime" required></div>
+                <div class="field field--wide"><label>Адрес старта *</label><input type="text" id="aReturnAddress" required placeholder="г. Оренбург, Автовокзал"></div>
+              </div>
+
+              <button type="submit" class="btn btn--cta admin-form__submit">Опубликовать цикл</button>
+            </form>
+          </div>
+
+          <div class="admin-section tab-content active" id="tab-trips">
+            <h2 class="admin-section__title"><i class="fa-solid fa-bus"></i> Управление рейсами</h2>
+            <p class="admin-section__hint">Рейсы «Туда» и «Обратно» с загрузкой по участкам.</p>
+            <div id="adminTripsList" class="admin-trips-list"></div>
+          </div>
+        </div>
+
+        <!-- ЗАЯВКИ -->
+        <div class="tab-content active" id="tab-bookings-table">
+          <h1 class="admin-title">Панель управления заявками</h1>
+          <div class="stats">
+            <div class="stat-card">
+              <div class="stat-card__icon"><i class="fa-solid fa-layer-group"></i></div>
+              <span class="stat-card__num" id="statTotal">0</span><span class="stat-card__label">Всего</span>
+            </div>
+            <div class="stat-card stat-card--new">
+              <div class="stat-card__icon"><i class="fa-solid fa-bell"></i></div>
+              <span class="stat-card__num" id="statNew">0</span><span class="stat-card__label">Новых</span>
+            </div>
+            <div class="stat-card stat-card--confirmed">
+              <div class="stat-card__icon"><i class="fa-solid fa-circle-check"></i></div>
+              <span class="stat-card__num" id="statConfirmed">0</span><span class="stat-card__label">Подтверждено</span>
+            </div>
+            <div class="stat-card stat-card--cancelled">
+              <div class="stat-card__icon"><i class="fa-solid fa-circle-xmark"></i></div>
+              <span class="stat-card__num" id="statCancelled">0</span><span class="stat-card__label">Отменено</span>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th><th>Имя</th><th>Телефон</th><th>Рейс</th><th>Маршруты</th><th>Мест</th><th>Сумма</th><th>Статус</th><th>Действия</th>
+                </tr>
+              </thead>
+              <tbody id="appsTableBody"></tbody>
+            </table>
+            <p class="table-empty" id="tableEmpty" hidden>Заявок нет.</p>
+          </div>
+        </div>
+
+        <!-- ПОДПИСЧИКИ -->
+        <!-- ВРЕМЕННО СКРЫТО: РАССЫЛКА
+        <div class="tab-content" id="tab-subscribers-table" style="display: none;">
+          <h1 class="admin-title">База подписчиков</h1>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th><th>Email</th><th>Дата подписки</th>
+                </tr>
+              </thead>
+              <tbody id="subscribersTableBody"></tbody>
+            </table>
+            <p class="table-empty" id="subsTableEmpty" hidden>Подписчиков пока нет.</p>
+          </div>
+        </div>
+        -->
+
+        <!-- БАН-ЛИСТ -->
+        <div class="tab-content" id="tab-banned-table" style="display: none;">
+          <h1 class="admin-title">Забаненные пользователи</h1>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th><th>Имя</th><th>Телефон</th><th>Email</th><th>Причина бана</th><th>Действия</th>
+                </tr>
+              </thead>
+              <tbody id="bannedTableBody"></tbody>
+            </table>
+            <p class="table-empty" id="bannedTableEmpty" hidden>Забаненных пользователей нет.</p>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
