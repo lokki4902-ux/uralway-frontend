@@ -48,20 +48,20 @@
 
   // ---- СЛОВАРИ ДЛЯ КАЛЬКУЛЯЦИИ ----
   const PRICES = {
-    'Магнитогорск-Оренбург': { price: 2300, km: 436 }, 'Оренбург-Магнитогорск': { price: 2300, km: 436 },
-    'Магнитогорск-Саракташ': { price: 1900, km: 340 }, 'Саракташ-Магнитогорск': { price: 1900, km: 340 },
+    'Магнитогорск-Оренбург': { price: 2500, km: 436 }, 'Оренбург-Магнитогорск': { price: 2500, km: 436 },
+    'Магнитогорск-Саракташ': { price: 2000, km: 340 }, 'Саракташ-Магнитогорск': { price: 2000, km: 340 },
     'Магнитогорск-Кугарчи': { price: 1500, km: 320 },  'Кугарчи-Магнитогорск': { price: 1500, km: 320 },
-    'Магнитогорск-Исянгулово': { price: 1600, km: 281 }, 'Исянгулово-Магнитогорск': { price: 1600, km: 281 },
+    'Магнитогорск-Исянгулово': { price: 1700, km: 281 }, 'Исянгулово-Магнитогорск': { price: 1700, km: 281 },
     'Магнитогорск-Зилаир': { price: 1300, km: 212 },   'Зилаир-Магнитогорск': { price: 1300, km: 212 },
     'Магнитогорск-Юлдыбаево': { price: 1000, km: 176 }, 'Юлдыбаево-Магнитогорск': { price: 1000, km: 176 },
     'Магнитогорск-Баймак': { price: 700, km: 136 },    'Баймак-Магнитогорск': { price: 700, km: 136 },
     'Магнитогорск-Сибай': { price: 500, km: 98 },      'Сибай-Магнитогорск': { price: 500, km: 98 },
-    'Сибай-Оренбург': { price: 1900, km: 338 },        'Оренбург-Сибай': { price: 1900, km: 338 },
+    'Сибай-Оренбург': { price: 2000, km: 338 },        'Оренбург-Сибай': { price: 2000, km: 338 },
     'Сибай-Саракташ': { price: 1500, km: 242 },        'Саракташ-Сибай': { price: 1500, km: 242 },
-    'Сибай-Кугарчи': { price: 1000, km: 220 },         'Кугарчи-Сибай': { price: 1000, km: 220 },
-    'Сибай-Исянгулово': { price: 1100, km: 183 },      'Исянгулово-Сибай': { price: 1100, km: 183 },
+    'Сибай-Кугарчи': { price: 1100, km: 220 },         'Кугарчи-Сибай': { price: 1100, km: 220 },
+    'Сибай-Исянгулово': { price: 1200, km: 183 },      'Исянгулово-Сибай': { price: 1200, km: 183 },
     'Сибай-Зилаир': { price: 800, km: 114 },           'Зилаир-Сибай': { price: 800, km: 114 },
-    'Баймак-Оренбург': { price: 1700, km: 300 },       'Оренбург-Баймак': { price: 1700, km: 300 },
+    'Баймак-Оренбург': { price: 1800, km: 300 },       'Оренбург-Баймак': { price: 1800, km: 300 },
     'Баймак-Саракташ': { price: 1300, km: 204 },       'Саракташ-Баймак': { price: 1300, km: 204 },
     'Баймак-Исянгулово': { price: 1000, km: 145 },     'Исянгулово-Баймак': { price: 1000, km: 145 },
     'Баймак-Зилаир': { price: 600, km: 76 },           'Зилаир-Баймак': { price: 600, km: 76 },
@@ -80,9 +80,52 @@
   };
 
   const DRIVERS = {
-    '1': { name: 'Иванов Иван Иванович', car: 'Hyundai H-1', color: 'Черный', number: 'А 123 БВ 174' },
-    '2': { name: 'Петров Петр Петрович', car: 'Hyundai H-1', color: 'Серебристый', number: 'С 456 ТУ 174' }
+    '1': { name: 'Кадников Андрей Анатольевич', experience: 'с 1998 г.', car: 'HYUNDAI STARIA (минивэн)', color: 'чёрный', number: 'уточняется' },
+    '2': { name: 'Фомин Александр Владимирович', experience: 'с 2004 г.', car: 'HYUNDAI GRAND STAREX (минивэн)', color: 'серебристый металлик', number: 'уточняется' }
   };
+
+  // Телефоны администраторов — единое место для всех сообщений на сайте и в админке
+  const ADMIN_PHONES = ['+7 (919) 400-64-14', '+7 (919) 325-15-39'];
+
+  // ---- ТОЧКИ ПОСАДКИ ----
+  // Время указано для выезда в прямом направлении (Магнитогорск ➔ Оренбург).
+  // Пустое время = пока уточняется. Для обратного рейса можно добавить поле timeBack: "HH:MM".
+  const CITY_STOPS = {
+    'Магнитогорск': [ { time: '09:00', address: 'Гостиный двор (К.Маркса 153)' } ],
+    'Сибай': [
+      { time: '10:10', address: 'Семейный Магнит (Индустриальное шоссе 16/2)' },
+      { time: '10:15', address: 'Автобусная остановка по Горняков 6' },
+      { time: '10:20', address: 'Магазин Магнит (Горняков 12)' },
+      { time: '10:25', address: 'Кафе Симург (Ленина 15)' }
+    ],
+    'Баймак': [ { time: '', address: 'ЗАГС (Ленина 77)' }, { time: '', address: 'Гостиница Южный' } ],
+    'Юлдыбаево': [ { time: '', address: 'Кафе Халяль (Молодежная 19/4)' } ],
+    'Зилаир': [ { time: '', address: 'Автовокзал (Голубцова 123)' } ],
+    'Кугарчи': [ { time: '', address: 'Автобусная остановка' } ],
+    'Аманат': [ { time: '', address: 'Кафе Аманат' } ],
+    'Тазларово': [ { time: '', address: 'Автобусная остановка' } ],
+    'Исянгулово': [ { time: '', address: 'Автовокзал' }, { time: '', address: 'Магазин Пятерочка (Новопавловка, ул Мира 1а)' } ],
+    'Саракташ': [ { time: '', address: 'Магазин Магнит, Ватутина 9' } ],
+    'Оренбург': [
+      { time: '', address: 'Микрохирургия глаза, Салмышская 17' },
+      { time: '', address: 'ТК Уют, Салмышская 24' },
+      { time: '', address: 'ТЦ Чайка, Гагарина 29/2' }
+    ]
+  };
+
+  // Населённые пункты, у которых есть маршруты ТОЛЬКО до перечисленных городов (и обратно).
+  // Чтобы разрешить, например, Магнитогорск и Сибай для Кугарчи — добавьте их в список.
+  const LIMITED_CITIES = {
+    'Кугарчи': ['Оренбург'],
+    'Аманат': ['Оренбург'],
+    'Тазларово': ['Оренбург']
+  };
+
+  function isRouteAllowed(a, b) {
+    if (LIMITED_CITIES[a]) return LIMITED_CITIES[a].includes(b);
+    if (LIMITED_CITIES[b]) return LIMITED_CITIES[b].includes(a);
+    return true;
+  }
 
   // ---- СЕГМЕНТНОЕ БРОНИРОВАНИЕ: ПОРЯДОК ГОРОДОВ И ЗАНЯТОСТЬ ----
   // Порядок строго как на бэкенде (CITIES_ORDER в main.py)
@@ -126,17 +169,6 @@
     return getTrips()[sel.value] || null;
   }
 
-  // Время и адреса посадки приходят с сервера (CITY_BOARDING_INFO в main.py) — единый источник данных
-  let boardingInfo = null;
-  async function loadBoardingInfo() {
-    try {
-      const res = await fetch(`${API_URL}/api/boarding-info`);
-      if (res.ok) boardingInfo = await res.json();
-    } catch (e) { console.error('Не удалось загрузить справочник посадки', e); }
-  }
-  function getBoardingFor(dir, city) {
-    return (boardingInfo && boardingInfo[dir] && boardingInfo[dir][city]) || null;
-  }
   // Прямой рейс идёт по возрастанию CITIES_ORDER, обратный — по убыванию (как validate на сервере)
   function rowMatchesDirection(from, to, dir) {
     const a = CITIES_ORDER.indexOf(from), b = CITIES_ORDER.indexOf(to);
@@ -192,11 +224,6 @@
           <b>${n}/${TOTAL_SEATS}</b>
         </div>`;
     }).join('');
-  }
-
-  // Справочник посадки нужен только на странице с формой бронирования
-  if (document.getElementById('bookingForm')) {
-    loadBoardingInfo().then(() => { try { calculateTotal(); } catch (e) { /* форма ещё не готова */ } });
   }
 
   // ---- УТИЛИТЫ ----
@@ -267,7 +294,7 @@
           <p><i class="fa-solid fa-user-tie"></i> Водитель: ${driver.name}</p>
           <p><i class="fa-solid fa-car"></i> ${driver.car} (${driver.color})</p>
           <p><i class="fa-solid fa-hashtag"></i> Гос. номер: ${driver.number}</p>
-          <p style="margin-top:15px; font-size:12px; color:var(--muted);"><i class="fa-solid fa-phone"></i> Справки: ${a.phone}</p>
+          <p style="margin-top:15px; font-size:12px; color:var(--muted);"><i class="fa-solid fa-phone"></i> Справки: ${ADMIN_PHONES.join(', ')}</p>
           <div class="seats-visualization" data-seats-for="${a.id}">${seatsVisualizationHtml(0)}</div>
         </div>
       `;
@@ -318,25 +345,66 @@
     return hint;
   }
 
-  // Плашка «Посадка: [адрес] в [время]» под полем «Откуда»
-  function ensureBoardingInfo(row) {
-    let box = row.querySelector('.boarding-info');
-    if (!box) {
-      box = document.createElement('div');
-      box.className = 'boarding-info';
-      row.querySelector('.from-select').closest('.field').appendChild(box);
-    }
-    return box;
-  }
-  function renderBoarding(box, dir, city) {
-    if (!dir || !city || !boardingInfo) { box.innerHTML = ''; return; }
-    const info = getBoardingFor(dir, city);
-    box.innerHTML = info
-      ? `<i class="fa-solid fa-location-dot"></i><span>Посадка: <strong>${info.address}</strong> в <strong>${info.time}</strong></span>`
-      : `<i class="fa-solid fa-circle-info"></i><span>Время и адрес посадки в этом пункте уточняйте по телефону</span>`;
+  // Время точки посадки зависит от направления рейса
+  const stopTime = (stop, dir) => dir === 'return' ? (stop.timeBack || '') : (stop.time || '');
+  const currentDir = () => { const t = getSelectedTrip(); return t ? tripDir(t) : 'forward'; };
+
+  // Недоступные сочетания «Откуда» / «Куда» отключаются в выпадающих списках
+  function syncRouteOptions(row) {
+    const fromSel = row.querySelector('.from-select'), toSel = row.querySelector('.to-select');
+    const apply = (sel, other) => {
+      Array.from(sel.options).forEach(opt => {
+        if (!opt.value) return;
+        opt.disabled = !!other.value && (opt.value === other.value || !isRouteAllowed(opt.value, other.value));
+      });
+      if (sel.value && sel.options[sel.selectedIndex].disabled) sel.value = '';
+    };
+    apply(toSel, fromSel);
+    apply(fromSel, toSel);
   }
 
-  // Для каждой строки: плашка посадки, проверка направления и «Свободно X мест на этом участке».
+  // Поле «Точка посадки» (создаётся, если его нет в разметке строки)
+  function ensureStopField(row) {
+    if (row.querySelector('.stop-select')) return;
+    const field = document.createElement('div');
+    field.className = 'field stop-field';
+    field.innerHTML = '<label>Точка посадки *</label><select class="stop-select" disabled><option value="">Сначала выберите «Откуда»</option></select><span class="field__error"></span>';
+    row.appendChild(field);
+  }
+
+  // Подгружает адреса из CITY_STOPS для выбранного «Откуда»; единственная точка выбирается автоматически
+  function refreshStopSelect(row) {
+    const sel = row.querySelector('.stop-select');
+    if (!sel) return;
+    const city = row.querySelector('.from-select').value;
+    const stops = CITY_STOPS[city] || [];
+    const dir = currentDir();
+    const prev = (sel.dataset.city === city) ? sel.value : '';
+    if (!city || stops.length === 0) {
+      sel.innerHTML = `<option value="">${city ? 'Нет точек посадки' : 'Сначала выберите «Откуда»'}</option>`;
+      sel.disabled = true;
+      sel.dataset.city = city;
+      return;
+    }
+    sel.disabled = false;
+    sel.innerHTML = (stops.length > 1 ? '<option value="">Выберите точку посадки…</option>' : '') +
+      stops.map((st, i) => {
+        const t = stopTime(st, dir);
+        return `<option value="${i}">${esc(t ? `${t} — ${st.address}` : st.address)}</option>`;
+      }).join('');
+    sel.dataset.city = city;
+    sel.value = stops.length === 1 ? '0' : prev;
+  }
+
+  // Выбранная точка посадки строки: { time, address } или null
+  function getRowStop(row, dir) {
+    const sel = row.querySelector('.stop-select');
+    if (!sel || sel.value === '') return null;
+    const stop = (CITY_STOPS[row.querySelector('.from-select').value] || [])[Number(sel.value)];
+    return stop ? { time: stopTime(stop, dir), address: stop.address } : null;
+  }
+
+  // Для каждой строки: проверка направления и «Свободно X мест на этом участке».
   // Строки заявки суммируются между собой, если пересекаются по участкам.
   function applyAvailability() {
     availabilityOk = true;
@@ -354,7 +422,6 @@
     });
     rows.forEach((r, i) => {
       const hint = ensureSeatsHint(r.row);
-      renderBoarding(ensureBoardingInfo(r.row), dir, r.from);
 
       // участок должен идти в направлении выбранного рейса
       if (dir && r.range.length && !rowMatchesDirection(r.from, r.to, dir)) {
@@ -392,7 +459,8 @@
     tripOccupancy = null;
     const tripSel = $('#fTrip');
     const idx = tripSel ? tripSel.value : '';
-    calculateTotal(); // сбросить старые подсказки, обновить плашки посадки
+    if (container) $$('.passenger-row', container).forEach(refreshStopSelect);
+    calculateTotal(); // сбросить старые подсказки
     if (idx === '') return;
     const trip = getTrips()[idx];
     if (!trip) return;
@@ -438,6 +506,7 @@
       const to = row.querySelector('.to-select').value;
       const seats = Number(row.querySelector('.seats-select').value);
       const pricePreview = row.querySelector('.row-price-preview');
+      pricePreview.classList.remove('is-notfound');
       
       if (from && to) {
         if (from === to) { setError(row.querySelector('.to-select'), 'Совпадает'); pricePreview.textContent = '0 ₽'; isValidRoutes = false; }
@@ -450,7 +519,7 @@
             totalSum += sum; 
             if (data.km > maxKm) maxKm = data.km; 
           }
-          else { pricePreview.textContent = 'Уточняйте'; }
+          else { pricePreview.textContent = 'Маршрут не найден'; pricePreview.classList.add('is-notfound'); isValidRoutes = false; }
         }
       } else { pricePreview.textContent = '0 ₽'; isValidRoutes = false; }
     });
@@ -470,7 +539,8 @@
     let routesValid = rows.length > 0 && rows.every(row => {
       const f = row.querySelector('.from-select').value;
       const t = row.querySelector('.to-select').value;
-      return f !== '' && t !== '' && f !== t;
+      const stopSel = row.querySelector('.stop-select');
+      return f !== '' && t !== '' && f !== t && !!PRICES[`${f}-${t}`] && isRouteAllowed(f, t) && !!stopSel && stopSel.value !== '';
     });
     submitBtn.disabled = !(baseValid && routesValid && availabilityOk);
   }
@@ -482,16 +552,14 @@
     const removeBtn = row.querySelector('.remove-row');
     const update = () => calculateTotal();
 
-    fromSel.addEventListener('change', () => {
-      const fromVal = fromSel.value;
-      Array.from(toSel.options).forEach(opt => {
-        if (opt.value === fromVal && fromVal !== '') { opt.disabled = true; if (toSel.value === fromVal) toSel.value = ''; }
-        else { opt.disabled = false; }
-      });
-      update();
-    });
+    ensureStopField(row);
+    const stopSel = row.querySelector('.stop-select');
 
-    toSel.addEventListener('change', update);
+    fromSel.addEventListener('change', () => { syncRouteOptions(row); refreshStopSelect(row); update(); });
+    toSel.addEventListener('change', () => { syncRouteOptions(row); update(); });
+    stopSel.addEventListener('change', update);
+    syncRouteOptions(row);
+    refreshStopSelect(row);
     seatsSel.dataset.prevValue = seatsSel.value;
     
     seatsSel.addEventListener('change', (e) => {
@@ -559,7 +627,7 @@
         const seats = Number(row.querySelector('.seats-select').value);
         const data = PRICES[`${from}-${to}`];
         if (data) {
-          passengersData.push({ from, to, seats, km: data.km });
+          passengersData.push({ from, to, seats, km: data.km, stop: getRowStop(row, currentDir()) });
           totalPrice += data.price * seats;
           if (data.km > maxKm) maxKm = data.km;
         }
@@ -578,11 +646,11 @@
         
         // Посадка каждого пассажира берётся по его городу «Откуда» и направлению рейса
         const tripDirection = tripDir(selectedTrip);
-        const boardingRows = passengersData.map(p => ({ ...p, boarding: getBoardingFor(tripDirection, p.from) }));
+        const boardingRows = passengersData.map(p => ({ ...p, boarding: p.stop }));
         const firstBoarding = boardingRows[0].boarding;
 
         const routesString = boardingRows.map(p =>
-          `${p.from} — ${p.to} (${p.km} км, ${p.seats} чел.${p.boarding ? `, посадка ${p.boarding.time}, ${p.boarding.address}` : ''})`
+          `${p.from} — ${p.to} (${p.km} км, ${p.seats} чел.${p.boarding ? `, посадка ${p.boarding.time ? p.boarding.time + ', ' : ''}${p.boarding.address}` : ''})`
         ).join(', ');
         
         const response = await fetch(`${API_URL}/api/booking`, {
@@ -598,7 +666,7 @@
             trip_time: selectedTrip ? selectedTrip.time : '—',
             trip_address: selectedTrip ? selectedTrip.address : '—',
             trip_direction: tripDirection,
-            boarding_time: firstBoarding ? firstBoarding.time : null,
+            boarding_time: (firstBoarding && firstBoarding.time) || null,
             boarding_address: firstBoarding ? firstBoarding.address : null,
             passengers: passengersData.reduce((acc, curr) => acc + curr.seats, 0),
             segments: passengersData.map(p => ({ from_city: p.from, to_city: p.to, seats: p.seats })),
@@ -622,11 +690,11 @@
           $('#receiptTime').previousElementSibling.textContent = 'Время посадки:';
           $('#receiptAddress').previousElementSibling.textContent = 'Адрес посадки:';
           $('#receiptDate').textContent = selectedTrip ? `${fmtDate(selectedTrip.date)} · ${DIR_LABEL[tripDirection]}` : '—';
-          $('#receiptTime').textContent = firstBoarding ? firstBoarding.time : (selectedTrip ? selectedTrip.time : '—');
+          $('#receiptTime').textContent = firstBoarding ? (firstBoarding.time || 'уточняется') : (selectedTrip ? selectedTrip.time : '—');
           $('#receiptAddress').textContent = firstBoarding ? firstBoarding.address : (selectedTrip ? selectedTrip.address : '—');
           $('#receiptRoutes').innerHTML = boardingRows.map(p =>
             `${p.from} — ${p.to} (${p.seats} чел.)` +
-            (boardingRows.length > 1 && p.boarding ? `<br><small>Посадка: ${p.boarding.time}, ${p.boarding.address}</small>` : '')
+            (boardingRows.length > 1 && p.boarding ? `<br><small>Посадка: ${p.boarding.time ? p.boarding.time + ', ' : ''}${p.boarding.address}</small>` : '')
           ).join('<br>');
           $('#receiptTotal').textContent = `${totalPrice} ₽`;
 
@@ -653,6 +721,7 @@
            if(seatsSel) seatsSel.dataset.prevValue = seatsSel.value;
         }
         tripOccupancy = null;
+        $$('.passenger-row', container).forEach(r => { syncRouteOptions(r); refreshStopSelect(r); });
         calculateTotal();
         populateTrips();
         renderAnnouncements();
@@ -662,7 +731,7 @@
           alert(error.detail || 'На выбранном участке маршрута недостаточно свободных мест');
           await loadTripAvailability();
         } else if (error.message === 'BANNED') {
-          alert('Ваш номер телефона находится в черном списке. Бронирование невозможно. Свяжитесь с администратором: +7 (909) 092-09-89.');
+          alert(`Ваш номер телефона находится в черном списке. Бронирование невозможно. Свяжитесь с администратором: ${ADMIN_PHONES.join(' или ')}.`);
         } else {
           alert('Ошибка при отправке заявки. Пожалуйста, попробуйте позже или позвоните нам.');
         }
@@ -810,7 +879,7 @@
         const banRes = await fetch(`${API_URL}/api/check_ban/${encodeURIComponent(phone.value.trim())}`);
         const banData = await banRes.json();
         if (banData.is_banned) {
-          alert('Ваш номер телефона находится в черном списке. Вы не можете оставлять отзывы. Свяжитесь с администратором: +7 (909) 092-09-89.');
+          alert(`Ваш номер телефона находится в черном списке. Вы не можете оставлять отзывы. Свяжитесь с администратором: ${ADMIN_PHONES.join(' или ')}.`);
           return;
         }
       } catch (err) {
@@ -896,7 +965,7 @@
 
         // 1. Две связанные записи (общий cycleId): «Туда» и «Обратно» — у каждой своя шкала занятости
         const cycleId = Date.now();
-        const base = { cycleId, driverId, occupiedSeats: 0, phone: '+7 (909) 092-09-89' };
+        const base = { cycleId, driverId, occupiedSeats: 0, phone: ADMIN_PHONES.join(', ') };
         const stored = getTrips();
         stored.push({ ...base, id: cycleId, direction: 'forward', ...forward });
         stored.push({ ...base, id: cycleId + 1, direction: 'return', ...back });
@@ -987,7 +1056,7 @@
           <tr data-id="${app.id}">
             <td>${app.id}</td><td>${esc(app.name)}</td><td>${esc(app.phone)}</td>
             <td>
-              <strong>${fmtDate(app.trip_date)} в ${app.boarding_time || app.trip_time || '—'}</strong><br>
+              <strong>${fmtDate(app.trip_date)} в ${app.boarding_address ? (app.boarding_time || 'время уточняется') : (app.trip_time || '—')}</strong><br>
               <small>${esc(app.boarding_address) || '—'}</small><br>
               <small style="color: var(--muted);">${DIR_LABEL[app.trip_direction === 'return' ? 'return' : 'forward']}</small>
             </td>
