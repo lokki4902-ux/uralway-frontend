@@ -11,8 +11,30 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="style.css">
+
+  <!-- Yandex.Metrika counter -->
+  <script type="text/javascript">
+    window.dataLayer = window.dataLayer || [];
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();
+    for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+    k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(114068100, "init", {
+        clickmap:true,
+            trackLinks:true,
+            accurateTrackBounce:true,
+            webvisor:true,
+            ecommerce:"dataLayer"
+    });
+  </script>
+  <!-- /Yandex.Metrika counter -->
 </head>
 <body id="top">
+  <!-- Yandex.Metrika noscript -->
+  <noscript><div><img src="https://mc.yandex.ru/watch/114068100" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+  <!-- /Yandex.Metrika noscript -->
 
 <header class="site-header" id="siteHeader">
     <div class="header-main">
@@ -35,7 +57,7 @@
         </nav>
 
         <div class="header-contacts">
-          <span class="contact-item contact-item--phone"><i class="fa-solid fa-phone"></i><span class="phones-stack"><a href="tel:+79194006414">+7 (919) 400-64-14</a><a href="tel:+79193251539">+7 (919) 325-15-39</a></span></span>
+          <span class="contact-item contact-item--phone"><i class="fa-solid fa-phone"></i><span class="phones-stack"><a class="js-call-click" href="tel:+79194006414">+7 (919) 400-64-14</a><a class="js-call-click" href="tel:+79193251539">+7 (919) 325-15-39</a></span></span>
         </div>
 
         <div class="header-actions">
@@ -334,7 +356,7 @@
               <li><i class="fa-solid fa-check"></i> Комфортные минивэны</li>
               <li><i class="fa-solid fa-check"></i> Опытные водители</li>
             </ul>
-            <div class="service-phone-box">Для заказа Transfer звоните:<br><a href="tel:+79194006414">+7 (919) 400-64-14</a><br><a href="tel:+79193251539">+7 (919) 325-15-39</a></div>
+            <div class="service-phone-box">Для заказа Transfer звоните:<br><a class="js-call-click" href="tel:+79194006414">+7 (919) 400-64-14</a><br><a class="js-call-click" href="tel:+79193251539">+7 (919) 325-15-39</a></div>
           </article>
 
           <article class="service-extra-card">
@@ -348,7 +370,7 @@
               <li><span class="emoji">🎒</span> Большие посылки (чемоданы, сумки)</li>
               <li><span class="emoji">📦</span> Крупногабаритные грузы</li>
             </ul>
-            <div class="service-phone-box">Для заказа перевозки посылок звоните:<br><a href="tel:+79194006414">+7 (919) 400-64-14</a><br><a href="tel:+79193251539">+7 (919) 325-15-39</a></div>
+            <div class="service-phone-box">Для заказа перевозки посылок звоните:<br><a class="js-call-click" href="tel:+79194006414">+7 (919) 400-64-14</a><br><a class="js-call-click" href="tel:+79193251539">+7 (919) 325-15-39</a></div>
           </article>
         </div>
       </div>
@@ -383,13 +405,13 @@
           <h4 class="footer__title">Контакты</h4>
           <ul class="footer__list">
             <li><i class="fa-solid fa-location-dot"></i> г. Магнитогорск</li>
-            <li><i class="fa-solid fa-phone"></i> <a href="tel:+79194006414">+7 (919) 400-64-14</a></li>
-            <li><i class="fa-solid fa-phone"></i> <a href="tel:+79193251539">+7 (919) 325-15-39</a></li>
+            <li><i class="fa-solid fa-phone"></i> <a class="js-call-click" href="tel:+79194006414">+7 (919) 400-64-14</a></li>
+            <li><i class="fa-solid fa-phone"></i> <a class="js-call-click" href="tel:+79193251539">+7 (919) 325-15-39</a></li>
             <li>
               <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" style="margin-top:5px; flex-shrink:0;">
                 <path d="M15.684 0H8.316C1.592 0 0 1.592 0 8.316v7.368C0 22.408 1.592 24 8.316 24h7.368C22.408 24 24 22.408 24 15.684V8.316C24 1.592 22.408 0 15.684 0zm3.692 17.123h-1.744c-.66 0-.864-.525-2.05-1.727-1.033-1-1.49-1.135-1.744-1.135-.356 0-.458.102-.458.593v1.575c0 .424-.135.678-1.253.678-1.846 0-3.896-1.118-5.335-3.202C4.624 10.857 4.03 8.57 4.03 8.096c0-.254.102-.491.593-.491h1.744c.44 0 .61.203.78.677.864 2.49 2.303 4.675 2.896 4.675.22 0 .322-.102.322-.66V9.721c-.068-1.186-.695-1.287-.695-1.71 0-.203.17-.407.44-.407h2.744c.373 0 .508.203.508.643v3.473c0 .372.17.508.271.508.22 0 .407-.136.813-.542 1.27-1.422 2.18-3.61 2.18-3.61.119-.254.322-.491.762-.491h1.744c.525 0 .644.271.525.643-.22 1.017-2.354 4.031-2.354 4.031-.186.305-.254.44 0 .78.186.254.796.78 1.203 1.253.745.847 1.32 1.558 1.473 2.05.17.49-.085.744-.593.744z"/>
               </svg>
-              <a href="https://vk.ru/club214789332" target="_blank" style="display:flex; align-items:center; gap:10px;">Мы ВКонтакте</a>
+              <a class="js-social-click" href="https://vk.ru/club214789332" target="_blank" style="display:flex; align-items:center; gap:10px;">Мы ВКонтакте</a>
             </li>
             <li><i class="fa-solid fa-envelope"></i> <a href="mailto:info@uralway.ru">info@uralway.ru</a></li>
           </ul>
@@ -429,19 +451,19 @@
 
   <!-- ПЛАВАЮЩАЯ ПАНЕЛЬ СОЦСЕТЕЙ -->
   <aside class="social-sidebar" id="socialSidebar">
-    <a href="https://vk.ru/club214789332" target="_blank" class="social-sidebar__link" aria-label="ВКонтакте">
+    <a href="https://vk.ru/club214789332" target="_blank" class="social-sidebar__link js-social-click" aria-label="ВКонтакте">
       <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
         <path d="M15.684 0H8.316C1.592 0 0 1.592 0 8.316v7.368C0 22.408 1.592 24 8.316 24h7.368C22.408 24 24 22.408 24 15.684V8.316C24 1.592 22.408 0 15.684 0zm3.692 17.123h-1.744c-.66 0-.864-.525-2.05-1.727-1.033-1-1.49-1.135-1.744-1.135-.356 0-.458.102-.458.593v1.575c0 .424-.135.678-1.253.678-1.846 0-3.896-1.118-5.335-3.202C4.624 10.857 4.03 8.57 4.03 8.096c0-.254.102-.491.593-.491h1.744c.44 0 .61.203.78.677.864 2.49 2.303 4.675 2.896 4.675.22 0 .322-.102.322-.66V9.721c-.068-1.186-.695-1.287-.695-1.71 0-.203.17-.407.44-.407h2.744c.373 0 .508.203.508.643v3.473c0 .372.17.508.271.508.22 0 .407-.136.813-.542 1.27-1.422 2.18-3.61 2.18-3.61.119-.254.322-.491.762-.491h1.744c.525 0 .644.271.525.643-.22 1.017-2.354 4.031-2.354 4.031-.186.305-.254.44 0 .78.186.254.796.78 1.203 1.253.745.847 1.32 1.558 1.473 2.05.17.49-.085.744-.593.744z"/>
       </svg>
       <span class="social-sidebar__tooltip">Мы ВКонтакте</span>
     </a>
-    <a href="tel:+79194006414" class="social-sidebar__link" aria-label="Позвонить">
+    <a href="tel:+79194006414" class="social-sidebar__link js-call-click" aria-label="Позвонить">
       <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
       </svg>
       <span class="social-sidebar__tooltip">Позвонить: +7 (919) 400-64-14</span>
     </a>
-    <a href="tel:+79193251539" class="social-sidebar__link" aria-label="Позвонить">
+    <a href="tel:+79193251539" class="social-sidebar__link js-call-click" aria-label="Позвонить">
       <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
       </svg>
