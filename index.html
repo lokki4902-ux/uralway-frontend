@@ -3,94 +3,100 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0b0c0f">
+  <meta name="theme-color" content="#00427A">
   <meta name="description" content="Регулярные межгородские перевозки Магнитогорск — Оренбург на комфортных минивэнах. Бронирование мест онлайн.">
   <title>УралWay — Межгородские пассажирские перевозки</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body id="top">
 
-  <header class="site-header" id="siteHeader">
+<header class="site-header" id="siteHeader">
     <div class="header-main">
       <div class="container header-main__inner">
         <a href="#top" class="logo">
           <span class="logo__icon"><i class="fa-solid fa-route"></i></span>
           <span class="logo__text">УралWay<small>межгородские перевозки</small></span>
         </a>
+
+        <nav class="main-nav" id="mainNav" aria-label="Основная навигация">
+          <ul class="main-nav__list">
+            <li><a href="#about" class="nav-link">О компании</a></li>
+            <li><a href="#announcements" class="nav-link">Рейсы</a></li>
+            <li><a href="#routes" class="nav-link">Маршруты и цены</a></li>
+            <li><a href="#drivers" class="nav-link">Водители</a></li>
+            <li><a href="#reviews" class="nav-link">Отзывы</a></li>
+            <li><a href="#services" class="nav-link">Услуги</a></li>
+            <li><a href="#contacts" class="nav-link">Контакты</a></li>
+          </ul>
+        </nav>
+
         <div class="header-contacts">
-          <span class="contact-item"><i class="fa-solid fa-location-dot"></i><span>г. Магнитогорск</span></span>
           <span class="contact-item contact-item--phone"><i class="fa-solid fa-phone"></i><span class="phones-stack"><a href="tel:+79194006414">+7 (919) 400-64-14</a><a href="tel:+79193251539">+7 (919) 325-15-39</a></span></span>
-          <a href="mailto:info@uralway.ru" class="contact-item"><i class="fa-solid fa-envelope"></i><span>info@uralway.ru</span></a>
         </div>
+
         <div class="header-actions">
-          <a href="#booking" class="btn btn--gold-outline">Забронировать место</a>
+          <a href="#booking" class="btn btn--cta">Забронировать</a>
           <button class="burger" id="burger" aria-label="Меню" aria-expanded="false"><span></span><span></span><span></span></button>
         </div>
       </div>
     </div>
-    
-    <nav class="main-nav" id="mainNav">
-      <div class="container">
-        <ul class="main-nav__list">
-          <li><a href="#about" class="nav-link">О компании</a></li>
-          <li><a href="#announcements" class="nav-link">Анонсы рейсов</a></li>
-          <li><a href="#drivers" class="nav-link">Водители</a></li>
-          <li><a href="#services" class="nav-link">Услуги</a></li>
-          <li><a href="#routes" class="nav-link">Маршруты и Цены</a></li>
-          <li><a href="#advantages" class="nav-link">Преимущества</a></li>
-          <li><a href="#reviews" class="nav-link">Отзывы</a></li>
-          <li><a href="#contacts" class="nav-link">Контакты</a></li>
-        </ul>
-      </div>
-    </nav>
   </header>
 
   <main>
-    <!-- HERO -->
+    <!-- HERO: форма поиска рейса -->
     <section class="hero" id="about">
-      <div class="container hero__inner">
-        <div class="hero__content">
-          <span class="hero__eyebrow">Тихое качество в каждой поездке</span>
-          <h1 class="hero__title">Пассажирские перевозки по&nbsp;маршруту Магнитогорск ⇔ Оренбург</h1>
-          <ul class="hero__list">
-            <li><i class="fa-solid fa-check"></i> Регулярные рейсы</li>
-            <li><i class="fa-solid fa-check"></i> Комфортные минивэны</li>
-            <li><i class="fa-solid fa-check"></i> Опытные водители</li>
-            <li><i class="fa-solid fa-check"></i> Безопасность в пути</li>
-          </ul>
-          <div class="hero__actions">
-            <a href="#booking" class="btn btn--cta">Забронировать место</a>
-            <a href="#routes" class="btn btn--outline">Маршруты и цены</a>
-          </div>
-          <div class="hero__facts">
-            <div class="hero__fact"><b>436 км</b><span>весь маршрут</span></div>
-            <div class="hero__fact"><b>8</b><span>городов и сёл</span></div>
-            <div class="hero__fact"><b>до 8</b><span>мест в рейсе</span></div>
-          </div>
-        </div>
-        <div class="hero__media">
-          <div class="hero-slider" id="heroSlider">
-            <button class="hero-slider__arrow hero-slider__arrow--prev" id="sliderPrev"><i class="fa-solid fa-chevron-left"></i></button>
-            <div class="hero-slider__viewport">
-              <img src="van-1.jpg" alt="Минивэн" class="hero-slider__slide is-active">
-              <img src="van-2.jpg" alt="Минивэн" class="hero-slider__slide">
-              <div class="hero-slider__dots" id="sliderDots">
-                <button class="hero-slider__dot is-active" data-index="0"></button>
-                <button class="hero-slider__dot" data-index="1"></button>
-              </div>
+      <div class="hero__media">
+        <div class="hero-slider" id="heroSlider">
+          <button class="hero-slider__arrow hero-slider__arrow--prev" id="sliderPrev" aria-label="Назад"><i class="fa-solid fa-chevron-left"></i></button>
+          <div class="hero-slider__viewport">
+            <img src="van-1.jpg" alt="Минивэн" class="hero-slider__slide is-active">
+            <img src="van-2.jpg" alt="Минивэн" class="hero-slider__slide">
+            <div class="hero-slider__dots" id="sliderDots">
+              <button class="hero-slider__dot is-active" data-index="0" aria-label="Фото 1"></button>
+              <button class="hero-slider__dot" data-index="1" aria-label="Фото 2"></button>
             </div>
-            <button class="hero-slider__arrow hero-slider__arrow--next" id="sliderNext"><i class="fa-solid fa-chevron-right"></i></button>
           </div>
+          <button class="hero-slider__arrow hero-slider__arrow--next" id="sliderNext" aria-label="Вперёд"><i class="fa-solid fa-chevron-right"></i></button>
         </div>
+      </div>
+
+      <div class="container hero__inner">
+        <h1 class="hero__title">Пассажирские перевозки по&nbsp;маршруту Магнитогорск ⇔ Оренбург</h1>
+        <p class="hero__lead">Регулярные рейсы на комфортных минивэнах. Выберите маршрут и дату — мы покажем подходящий рейс.</p>
+
+        <form class="search-card" id="heroSearchForm" novalidate>
+          <div class="search-card__grid">
+            <div class="sfield"><label for="hsFrom">Откуда</label><select id="hsFrom"><option value="">Выберите город</option></select></div>
+            <div class="sfield"><label for="hsTo">Куда</label><select id="hsTo"><option value="">Выберите город</option></select></div>
+            <div class="sfield"><label for="hsDate">Дата</label><input type="date" id="hsDate"></div>
+            <div class="sfield">
+              <label for="hsSeats">Пассажиры</label>
+              <select id="hsSeats">
+                <option value="1">1 пассажир</option><option value="2">2 пассажира</option><option value="3">3 пассажира</option><option value="4">4 пассажира</option>
+                <option value="5">5 пассажиров</option><option value="6">6 пассажиров</option><option value="7">7 пассажиров</option><option value="8">8 пассажиров</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn--cta btn--lg" id="hsSubmit"><i class="fa-solid fa-magnifying-glass"></i> Найти</button>
+          </div>
+          <p class="search-card__msg" id="hsMsg" role="status"></p>
+        </form>
+
+        <ul class="hero__list">
+          <li><i class="fa-solid fa-check"></i> Регулярные рейсы</li>
+          <li><i class="fa-solid fa-check"></i> Комфортные минивэны</li>
+          <li><i class="fa-solid fa-check"></i> Опытные водители</li>
+          <li><i class="fa-solid fa-check"></i> Безопасность в пути</li>
+        </ul>
       </div>
     </section>
 
-    <!-- АНОНСЫ ПОЕЗДОК -->
-    <section class="announcements-section stub--gray" id="announcements">
+
+    <!-- БЛИЖАЙШИЕ РЕЙСЫ -->
+    <section class="announcements-section" id="announcements">
       <div class="container">
         <h2 class="section-title">Ближайшие рейсы</h2>
         <div class="announcements-grid" id="announcementsGrid">
@@ -100,7 +106,7 @@
     </section>
 
     <!-- ФОРМА БРОНИРОВАНИЯ -->
-    <section class="booking" id="booking">
+    <section class="booking section--gray" id="booking">
       <div class="container">
         <h2 class="section-title section-title--left">Запишитесь на поездку</h2>
         <p class="section-lead">Выберите рейс и добавьте пассажиров — стоимость рассчитается автоматически.</p>
@@ -207,78 +213,8 @@
       </div>
     </section>
 
-    <!-- УСЛУГИ (TRANSFER И ПОСЫЛКИ) -->
-    <section class="advantages" id="services">
-      <div class="container">
-        <h2 class="section-title section-title--dark">Дополнительные услуги</h2>
-        <div class="services-extra-grid reveal">
-          
-          <article class="service-extra-card">
-            <div class="service-extra-icon"><i class="fa-solid fa-car-side"></i></div>
-            <h3 class="service-extra-title">TRANSFER</h3>
-            <p class="service-extra-subtitle">Индивидуальные перевозки по вашему маршруту</p>
-            <p class="service-extra-desc">Персональный трансфер на минивэне по любому маршруту. Вы сами выбираете время отправления, маршрут и остановки. Идеально для корпоративных поездок, свадеб, экскурсий.</p>
-            <ul class="service-extra-list">
-              <li><i class="fa-solid fa-check"></i> Любой маршрут по вашему желанию</li>
-              <li><i class="fa-solid fa-check"></i> Отправление в удобное для вас время</li>
-              <li><i class="fa-solid fa-check"></i> Комфортные минивэны</li>
-              <li><i class="fa-solid fa-check"></i> Опытные водители</li>
-            </ul>
-            <div class="service-phone-box">Для заказа Transfer звоните:<br><a href="tel:+79194006414">+7 (919) 400-64-14</a><br><a href="tel:+79193251539">+7 (919) 325-15-39</a></div>
-          </article>
-
-          <article class="service-extra-card">
-            <div class="service-extra-icon"><i class="fa-solid fa-box-open"></i></div>
-            <h3 class="service-extra-title">ПЕРЕВОЗКА ПОСЫЛОК</h3>
-            <p class="service-extra-subtitle">Доставка грузов в багажнике минивэна</p>
-            <p class="service-extra-desc">Перевозим посылки любого размера — от небольшого письма до груза, занимающего весь багажник минивэна. Быстрая и надежная доставка между городами маршрута.</p>
-            <ul class="service-extra-list service-extra-list--emoji">
-              <li><span class="emoji">📄</span> Маленькие посылки (документы, письма)</li>
-              <li><span class="emoji">📦</span> Средние посылки (коробки до 20 кг)</li>
-              <li><span class="emoji">🎒</span> Большие посылки (чемоданы, сумки)</li>
-              <li><span class="emoji">📦</span> Крупногабаритные грузы</li>
-            </ul>
-            <div class="service-phone-box">Для заказа перевозки посылок звоните:<br><a href="tel:+79194006414">+7 (919) 400-64-14</a><br><a href="tel:+79193251539">+7 (919) 325-15-39</a></div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- КАРТОЧКИ ВОДИТЕЛЕЙ -->
-    <section class="drivers-section stub--white" id="drivers">
-      <div class="container">
-        <h2 class="section-title">Наши водители</h2>
-        <div class="drivers-grid">
-          <article class="driver-card reveal">
-            <div class="driver-photos">
-              <div class="photo-placeholder"><i class="fa-solid fa-user"></i></div>
-              <div class="photo-placeholder"><i class="fa-solid fa-car"></i></div>
-            </div>
-            <div class="driver-info">
-              <h3>Кадников Андрей Анатольевич</h3>
-              <p><i class="fa-solid fa-clock"></i> Стаж: <span>с 1998 г.</span></p>
-              <p><i class="fa-solid fa-car"></i> Авто: <span>HYUNDAI STARIA (минивэн, чёрный)</span></p>
-              <p><i class="fa-solid fa-hashtag"></i> Госномер: <span>уточняется</span></p>
-            </div>
-          </article>
-          <article class="driver-card reveal">
-            <div class="driver-photos">
-              <div class="photo-placeholder"><i class="fa-solid fa-user"></i></div>
-              <div class="photo-placeholder"><i class="fa-solid fa-car"></i></div>
-            </div>
-            <div class="driver-info">
-              <h3>Фомин Александр Владимирович</h3>
-              <p><i class="fa-solid fa-clock"></i> Стаж: <span>с 2004 г.</span></p>
-              <p><i class="fa-solid fa-car"></i> Авто: <span>HYUNDAI GRAND STAREX (минивэн, серебристый металлик)</span></p>
-              <p><i class="fa-solid fa-hashtag"></i> Госномер: <span>уточняется</span></p>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- МАРШРУТЫ -->
-    <section class="routes-section stub--gray" id="routes">
+    <!-- МАРШРУТЫ И ЦЕНЫ -->
+    <section class="routes-section" id="routes">
       <div class="container">
         <h2 class="section-title">Наши маршруты и стоимость</h2>
         <div class="routes__grid">
@@ -328,16 +264,35 @@
       </div>
     </section>
 
-    <!-- ПРЕИМУЩЕСТВА -->
-    <section class="advantages" id="advantages">
+    <!-- ВОДИТЕЛИ -->
+    <section class="drivers-section section--gray" id="drivers">
       <div class="container">
-        <h2 class="section-title section-title--dark"><i class="fa-solid fa-thumbs-up"></i> Ваши преимущества</h2>
-        <div class="advantages__grid">
-          <article class="adv-card reveal"><div class="adv-card__icon"><i class="fa-solid fa-calendar-check"></i></div><h3>Регулярные поездки</h3><p>Отправляемся строго по расписанию.</p></article>
-          <article class="adv-card reveal"><div class="adv-card__icon"><i class="fa-solid fa-user-tie"></i></div><h3>Опытные водители</h3><p>За рулем только профессионалы с большим стажем.</p></article>
-          <article class="adv-card reveal"><div class="adv-card__icon"><i class="fa-solid fa-couch"></i></div><h3>Трансформируемый салон</h3><p>Сиденья легко складываются и сдвигаются.</p></article>
-          <article class="adv-card reveal"><div class="adv-card__icon"><i class="fa-solid fa-door-open"></i></div><h3>Удобство и комфорт</h3><p>Сдвижные двери, подлокотники и отсеки для мелочей.</p></article>
-          <article class="adv-card adv-card--center reveal"><div class="adv-card__icon"><i class="fa-solid fa-wind"></i></div><h3>Идеальный микроклимат</h3><p>Система вентиляции обеспечит свежесть в салоне.</p></article>
+        <h2 class="section-title">Наши водители</h2>
+        <div class="drivers-grid">
+          <article class="driver-card reveal">
+            <div class="driver-photos">
+              <div class="photo-placeholder"><i class="fa-solid fa-user"></i></div>
+              <div class="photo-placeholder"><i class="fa-solid fa-car"></i></div>
+            </div>
+            <div class="driver-info">
+              <h3>Кадников Андрей Анатольевич</h3>
+              <p><i class="fa-solid fa-clock"></i> Стаж: <span>с 1998 г.</span></p>
+              <p><i class="fa-solid fa-car"></i> Авто: <span>HYUNDAI STARIA (минивэн, чёрный)</span></p>
+              <p><i class="fa-solid fa-hashtag"></i> Госномер: <span>уточняется</span></p>
+            </div>
+          </article>
+          <article class="driver-card reveal">
+            <div class="driver-photos">
+              <div class="photo-placeholder"><i class="fa-solid fa-user"></i></div>
+              <div class="photo-placeholder"><i class="fa-solid fa-car"></i></div>
+            </div>
+            <div class="driver-info">
+              <h3>Фомин Александр Владимирович</h3>
+              <p><i class="fa-solid fa-clock"></i> Стаж: <span>с 2004 г.</span></p>
+              <p><i class="fa-solid fa-car"></i> Авто: <span>HYUNDAI GRAND STAREX (минивэн, серебристый металлик)</span></p>
+              <p><i class="fa-solid fa-hashtag"></i> Госномер: <span>уточняется</span></p>
+            </div>
+          </article>
         </div>
       </div>
     </section>
@@ -358,6 +313,43 @@
       <!-- Кнопка «Показать все отзывы» -->
         <div class="reviews__more">
           <button class="btn btn--outline" id="showMoreReviewsBtn" style="display: none;">Показать все отзывы</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ДОПОЛНИТЕЛЬНЫЕ УСЛУГИ (TRANSFER И ПОСЫЛКИ) -->
+    <section class="services-section section--gray" id="services">
+      <div class="container">
+        <h2 class="section-title section-title--dark">Дополнительные услуги</h2>
+        <div class="services-extra-grid reveal">
+          
+          <article class="service-extra-card">
+            <div class="service-extra-icon"><i class="fa-solid fa-car-side"></i></div>
+            <h3 class="service-extra-title">TRANSFER</h3>
+            <p class="service-extra-subtitle">Индивидуальные перевозки по вашему маршруту</p>
+            <p class="service-extra-desc">Персональный трансфер на минивэне по любому маршруту. Вы сами выбираете время отправления, маршрут и остановки. Идеально для корпоративных поездок, свадеб, экскурсий.</p>
+            <ul class="service-extra-list">
+              <li><i class="fa-solid fa-check"></i> Любой маршрут по вашему желанию</li>
+              <li><i class="fa-solid fa-check"></i> Отправление в удобное для вас время</li>
+              <li><i class="fa-solid fa-check"></i> Комфортные минивэны</li>
+              <li><i class="fa-solid fa-check"></i> Опытные водители</li>
+            </ul>
+            <div class="service-phone-box">Для заказа Transfer звоните:<br><a href="tel:+79194006414">+7 (919) 400-64-14</a><br><a href="tel:+79193251539">+7 (919) 325-15-39</a></div>
+          </article>
+
+          <article class="service-extra-card">
+            <div class="service-extra-icon"><i class="fa-solid fa-box-open"></i></div>
+            <h3 class="service-extra-title">ПЕРЕВОЗКА ПОСЫЛОК</h3>
+            <p class="service-extra-subtitle">Доставка грузов в багажнике минивэна</p>
+            <p class="service-extra-desc">Перевозим посылки любого размера — от небольшого письма до груза, занимающего весь багажник минивэна. Быстрая и надежная доставка между городами маршрута.</p>
+            <ul class="service-extra-list service-extra-list--emoji">
+              <li><span class="emoji">📄</span> Маленькие посылки (документы, письма)</li>
+              <li><span class="emoji">📦</span> Средние посылки (коробки до 20 кг)</li>
+              <li><span class="emoji">🎒</span> Большие посылки (чемоданы, сумки)</li>
+              <li><span class="emoji">📦</span> Крупногабаритные грузы</li>
+            </ul>
+            <div class="service-phone-box">Для заказа перевозки посылок звоните:<br><a href="tel:+79194006414">+7 (919) 400-64-14</a><br><a href="tel:+79193251539">+7 (919) 325-15-39</a></div>
+          </article>
         </div>
       </div>
     </section>
@@ -426,7 +418,6 @@
             <li><a href="#drivers">Водители</a></li>
             <li><a href="#services">Услуги</a></li>
             <li><a href="#routes">Маршруты</a></li>
-            <li><a href="#advantages">Преимущества</a></li>
             <li><a href="#reviews">Отзывы</a></li>
           </ul>
         </div>
@@ -506,5 +497,96 @@
   </div>
 
   <script src="script.js"></script>
+  <!-- Дополнения интерфейса (script.js не затронут):
+       1) форма поиска в hero заполняет форму бронирования; 2) карточки рейсов получают цену и число свободных мест -->
+  <script>
+  (function () {
+    var form = document.getElementById('heroSearchForm');
+    if (!form) return;
+    var $ = function (id) { return document.getElementById(id); };
+    var msg = $('hsMsg');
+    var row = document.querySelector('#passengersContainer .passenger-row');
+    if (!row) return;
+    var ORDER = ['Магнитогорск', 'Сибай', 'Баймак', 'Юлдыбаево', 'Зилаир', 'Исянгулово', 'Саракташ', 'Оренбург'];
+    var LABEL = { forward: 'Магнитогорск ➔ Оренбург', back: 'Оренбург ➔ Магнитогорск' };
+
+    // Города берём из списка формы бронирования — единый источник
+    var src = row.querySelector('.from-select');
+    ['hsFrom', 'hsTo'].forEach(function (id) {
+      var sel = $(id);
+      Array.prototype.forEach.call(src.options, function (o) {
+        if (!o.value) return;
+        var opt = document.createElement('option'); opt.value = o.value; opt.textContent = o.value; sel.appendChild(opt);
+      });
+    });
+    var d = new Date(); var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+    $('hsDate').min = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+
+    function direction(f, t) {
+      var a = ORDER.indexOf(f), b = ORDER.indexOf(t);
+      if (a > -1 && b > -1) return a < b ? 'forward' : 'back';
+      if (f === 'Оренбург' || t === 'Магнитогорск') return 'back';
+      return 'forward';
+    }
+    function setVal(sel, val) { sel.value = val; sel.dispatchEvent(new Event('change', { bubbles: true })); }
+    function say(text, info) { msg.textContent = text; msg.className = 'search-card__msg' + (info ? ' is-info' : ''); }
+    function go(id) { var el = $(id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var from = $('hsFrom').value, to = $('hsTo').value, date = $('hsDate').value, seats = $('hsSeats').value;
+      if (!from || !to) { say('Выберите «Откуда» и «Куда».'); return; }
+      if (from === to) { say('Пункты отправления и назначения совпадают.'); return; }
+
+      var rf = row.querySelector('.from-select'), rt = row.querySelector('.to-select');
+      setVal(rf, from); setVal(rt, to); setVal(row.querySelector('.seats-select'), seats);
+      if (rf.value !== from || rt.value !== to) { say('Такого маршрута нет в прайс-листе. Выберите другие города.'); return; }
+
+      if (date) {
+        var human = date.split('-').reverse().join('.');
+        var tripSel = $('fTrip'), found = null;
+        Array.prototype.forEach.call(tripSel.options, function (o) {
+          if (!found && o.value !== '' && o.text.indexOf(human) > -1 && o.text.indexOf(LABEL[direction(from, to)]) > -1) found = o;
+        });
+        if (!found) { say('На ' + human + ' рейсов по этому направлению нет. Ближайшие рейсы — ниже.', true); go('announcements'); return; }
+        setVal(tripSel, found.value);
+      }
+      say('');
+      go('booking');
+    });
+  })();
+
+  (function () {
+    var grid = document.getElementById('announcementsGrid');
+    if (!grid || !window.MutationObserver) return;
+    // Цены из прайс-листа: «от» — самый короткий участок, «весь маршрут» — Магнитогорск — Оренбург
+    var PRICE_FROM = '400 ₽', PRICE_FULL = '2 500 ₽';
+    function enhance() {
+      var cards = grid.querySelectorAll('.announcement-card');
+      for (var i = 0; i < cards.length; i++) {
+        var card = cards[i], foot = card.querySelector('.trip-footer');
+        if (!foot) {
+          foot = document.createElement('div');
+          foot.className = 'trip-footer';
+          foot.innerHTML = '<div class="trip-price"><b>от ' + PRICE_FROM + '</b><small>весь маршрут ' + PRICE_FULL + '</small></div><span class="trip-seats"></span>';
+          card.appendChild(foot);
+        }
+        var cnt = card.querySelector('.seats-count'), seats = foot.querySelector('.trip-seats');
+        var m = cnt && cnt.textContent.match(/(\d+)\s+из\s+(\d+)/);
+        var text = '', cls = 'trip-seats';
+        if (m) {
+          var free = Math.max(parseInt(m[2], 10) - parseInt(m[1], 10), 0);
+          text = free ? 'Свободно мест: ' + free : 'Мест нет';
+          cls += free === 0 ? ' is-none' : (free <= 3 ? ' is-low' : '');
+        }
+        if (seats.textContent !== text) seats.textContent = text;
+        if (seats.className !== cls) seats.className = cls;
+      }
+    }
+    new MutationObserver(enhance).observe(grid, { childList: true, subtree: true });
+    enhance();
+  })();
+  </script>
+
 </body>
 </html>
