@@ -226,6 +226,60 @@
     }).join('');
   }
 
+  // ---- ЯНДЕКС.МЕТРИКА: ЦЕЛИ И ЭЛЕКТРОННАЯ КОММЕРЦИЯ ----
+  const METRIKA_ID = 114068100;
+  function reachGoal(goal, params) {
+    try {
+      if (typeof ym === 'undefined') return; // счётчик заблокирован или не загрузился
+      if (params) ym(METRIKA_ID, 'reachGoal', goal, params); else ym(METRIKA_ID, 'reachGoal', goal);
+    } catch (e) { /* аналитика не должна ломать сайт */ }
+  }
+
+  // Бронирование = покупка: цель, параметры визита и «Покупка» для отчётов электронной коммерции
+  function trackBookingSuccess({ orderId, totalPrice, totalPassengers, direction, rows }) {
+    try {
+      const id = String(orderId);
+      if (typeof ym !== 'undefined') {
+        ym(METRIKA_ID, 'reachGoal', 'booking_success');
+        ym(METRIKA_ID, 'params', {
+          order_price: totalPrice,          // итоговая сумма заявки
+          currency: 'RUB',
+          order_id: id,                     // номер заявки
+          passengers_count: totalPassengers // количество пассажиров
+        });
+      }
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        ecommerce: {
+          currencyCode: 'RUB',
+          purchase: {
+            actionField: { id },
+            products: rows.map(p => ({
+              id: `${p.from}-${p.to}`,
+              name: `${p.from} — ${p.to}`,
+              price: PRICES[`${p.from}-${p.to}`].price,
+              quantity: p.seats,
+              category: direction === 'return' ? 'Обратно' : 'Туда'
+            }))
+          }
+        }
+      });
+    } catch (e) { /* аналитика не должна ломать сайт */ }
+  }
+
+  // Звонки (tel:) и ВКонтакте: помечаем классами (в т.ч. ссылки, добавленные позже) и ловим клики одним обработчиком
+  document.querySelectorAll('a[href^="tel:"]').forEach(a => a.classList.add('js-call-click'));
+  document.querySelectorAll('a[href*="vk.com"], a[href*="vk.ru"]').forEach(a => a.classList.add('js-social-click'));
+  document.addEventListener('click', (e) => {
+    const call = e.target.closest('.js-call-click');
+    if (call) { reachGoal('call_click', { phone: (call.getAttribute('href') || '').replace('tel:', '') }); return; }
+    if (e.target.closest('.js-social-click')) reachGoal('social_click', { network: 'vk' });
+  });
+
+  // Кнопка «Оставить отзыв»
+  const openReviewBtnEl = document.getElementById('openReviewBtn');
+  if (openReviewBtnEl) openReviewBtnEl.addEventListener('click', () => reachGoal('open_review_modal'));
+
   // ---- УТИЛИТЫ ----
   function formatPhone(value) {
     let d = value.replace(/\D/g, '');
@@ -330,6 +384,32 @@
   const totalPriceDisplay = $('#totalPriceDisplay');
   const totalDistanceDisplay = $('#totalDistanceDisplay');
   const MAX_SEATS = 8;
+
+  // ---- Метрика: шаги воронки бронирования ----
+  if (form) {
+    // 1. Пользователь докрутил до формы бронирования (один раз за визит)
+    if ('IntersectionObserver' in window) {
+      const bookingObserver = new IntersectionObserver((entries) => {
+        if (entries.some(en => en.isIntersecting)) { reachGoal('open_booking'); bookingObserver.disconnect(); }
+      }, { threshold: 0.25 });
+      bookingObserver.observe(form);
+    }
+    // 2. Выбран рейс
+    const tripSelectEl = $('#fTrip');
+    if (tripSelectEl) tripSelectEl.addEventListener('change', () => {
+      if (tripSelectEl.value === '') return;
+      const trip = getSelectedTrip();
+      reachGoal('select_trip', trip ? { trip_direction: tripDir(trip), trip_date: trip.date } : undefined);
+    });
+    // 3. Добавлен пассажир (считаем, только если строка реально добавилась)
+    if (addBtn) addBtn.addEventListener('click', () => {
+      const before = $$('.passenger-row', container).length;
+      setTimeout(() => {
+        const now = $$('.passenger-row', container).length;
+        if (now > before) reachGoal('add_passenger', { passenger_rows: now });
+      }, 0);
+    }, true);
+  }
 
   // Занятость выбранного рейса и результат проверки (используются в calculateTotal / checkFormValidity)
   let tripOccupancy = null;
@@ -685,6 +765,17 @@
           }
           throw new Error('Server Error');
         }
+
+        // ---- Метрика: успешное бронирование (до показа окна «Спасибо») ----
+        let bookingId = null;
+        try { bookingId = (await response.json()).booking_id; } catch (_) { /* ответ без JSON */ }
+        trackBookingSuccess({
+          orderId: bookingId || Date.now(),
+          totalPrice,
+          totalPassengers: passengersData.reduce((acc, p) => acc + p.seats, 0),
+          direction: tripDirection,
+          rows: passengersData
+        });
 
         if(modal) {
           $('#receiptTime').previousElementSibling.textContent = 'Время посадки:';
