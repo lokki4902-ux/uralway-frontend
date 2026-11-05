@@ -1,23 +1,23 @@
 (function () {
   'use strict';
-
+ 
   // ---- БАЗОВЫЕ УТИЛИТЫ ----
   const $  = (sel, ctx = document) => ctx.querySelector(sel);
   const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
-
+ 
   const API_URL = 'https://uralway-api.de1.netrun.io'; // Твой сервер
-
+ 
   // ---- БУРГЕР-МЕНЮ ----
   const burger = $('#burger');
   const mainNav = $('#mainNav');
-
+ 
   if (burger && mainNav) {
     burger.addEventListener('click', () => {
       const isOpen = mainNav.classList.toggle('is-open');
       burger.classList.toggle('is-active', isOpen);
       burger.setAttribute('aria-expanded', isOpen);
     });
-
+ 
     // Закрываем меню при клике на ссылку
     $$('.nav-link', mainNav).forEach(link => {
       link.addEventListener('click', () => {
@@ -27,7 +27,7 @@
       });
     });
   }
-
+ 
   // ---- АНИМАЦИЯ ПОЯВЛЕНИЯ ----
   const revealEls = $$('.reveal');
   if (revealEls.length) {
@@ -45,7 +45,7 @@
       revealEls.forEach(el => el.classList.add('is-visible'));
     }
   }
-
+ 
   // ---- СЛОВАРИ ДЛЯ КАЛЬКУЛЯЦИИ ----
   const PRICES = {
     'Магнитогорск-Оренбург': { price: 2500, km: 436 }, 'Оренбург-Магнитогорск': { price: 2500, km: 436 },
@@ -78,15 +78,15 @@
     'Исянгулово-Оренбург': { price: 900, km: 155 },    'Оренбург-Исянгулово': { price: 900, km: 155 },
     'Саракташ-Оренбург': { price: 500, km: 96 },       'Оренбург-Саракташ': { price: 500, km: 96 }
   };
-
+ 
   const DRIVERS = {
     '1': { name: 'Кадников Андрей Анатольевич', experience: 'с 1998 г.', car: 'HYUNDAI STARIA (минивэн)', color: 'чёрный', number: 'уточняется' },
     '2': { name: 'Фомин Александр Владимирович', experience: 'с 2004 г.', car: 'HYUNDAI GRAND STAREX (минивэн)', color: 'серебристый металлик', number: 'уточняется' }
   };
-
+ 
   // Телефоны администраторов — единое место для всех сообщений на сайте и в админке
   const ADMIN_PHONES = ['+7 (919) 400-64-14', '+7 (919) 325-15-39'];
-
+ 
   // ---- ТОЧКИ ПОСАДКИ ----
   // Время указано для выезда в прямом направлении (Магнитогорск ➔ Оренбург).
   // Пустое время = пока уточняется. Для обратного рейса можно добавить поле timeBack: "HH:MM".
@@ -112,7 +112,7 @@
       { time: '', address: 'ТЦ Чайка, Гагарина 29/2' }
     ]
   };
-
+ 
   // Населённые пункты, у которых есть маршруты только до перечисленных городов (и обратно) — по прайс-листу.
   // Пары между обычными городами не ограничиваются: если цены нет в PRICES, форма покажет «Маршрут не найден».
   const LIMITED_CITIES = {
@@ -120,19 +120,19 @@
     'Аманат': ['Оренбург'],
     'Тазларово': ['Оренбург']
   };
-
+ 
   function isRouteAllowed(a, b) {
     if (LIMITED_CITIES[a]) return LIMITED_CITIES[a].includes(b);
     if (LIMITED_CITIES[b]) return LIMITED_CITIES[b].includes(a);
     return true;
   }
-
+ 
   // ---- СЕГМЕНТНОЕ БРОНИРОВАНИЕ: ПОРЯДОК ГОРОДОВ И ЗАНЯТОСТЬ ----
   // Порядок строго как на бэкенде (CITIES_ORDER в main.py)
   const CITIES_ORDER = ['Магнитогорск', 'Сибай', 'Баймак', 'Юлдыбаево', 'Зилаир', 'Исянгулово', 'Саракташ', 'Оренбург'];
   const SEGMENT_KEYS = CITIES_ORDER.slice(0, -1).map((c, i) => `${c}-${CITIES_ORDER[i + 1]}`);
   const TOTAL_SEATS = 8;
-
+ 
   // Индексы участков между двумя городами (направление не важно).
   // Город вне CITIES_ORDER (Кугарчи, Аманат, Тазларово) = весь маршрут, как на сервере.
   function segmentRange(from, to) {
@@ -142,14 +142,14 @@
     const lo = Math.min(a, b), hi = Math.max(a, b);
     return Array.from({ length: hi - lo }, (_, k) => lo + k);
   }
-
+ 
   function pluralSeats(n) {
     const m10 = n % 10, m100 = n % 100;
     if (m10 === 1 && m100 !== 11) return `${n} место`;
     if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return `${n} места`;
     return `${n} мест`;
   }
-
+ 
   // ---- ЦИКЛ ПОЕЗДКИ: НАПРАВЛЕНИЯ, ДАТЫ, ПОСАДКА ----
   const DIR_LABEL = { forward: 'Магнитогорск ➔ Оренбург', return: 'Оренбург ➔ Магнитогорск' };
   const tripDir = (t) => (t && t.direction === 'return') ? 'return' : 'forward';
@@ -157,7 +157,7 @@
   // Экранирование данных, которые вводят пользователи (имя, email, комментарий) — защита админки от HTML-вставок
   const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const getTrips = () => JSON.parse(localStorage.getItem('uralway_announcements') || '[]');
-
+ 
   // Рейсы по возрастанию даты/времени; i — индекс в исходном массиве (он же value в #fTrip)
   function sortedTrips() {
     return getTrips().map((a, i) => ({ a, i }))
@@ -168,14 +168,14 @@
     if (!sel || sel.value === '') return null;
     return getTrips()[sel.value] || null;
   }
-
+ 
   // Прямой рейс идёт по возрастанию CITIES_ORDER, обратный — по убыванию (как validate на сервере)
   function rowMatchesDirection(from, to, dir) {
     const a = CITIES_ORDER.indexOf(from), b = CITIES_ORDER.indexOf(to);
     if (a === -1 || b === -1 || a === b) return true;
     return dir === 'forward' ? a < b : a > b;
   }
-
+ 
   // GET /api/availability -> {"Магнитогорск-Сибай": 8, ...} (занятые места по участкам).
   // У «туда» и «обратно» своя независимая шкала.
   async function getAvailability(date, time, direction = 'forward') {
@@ -184,11 +184,11 @@
     if (!res.ok) throw new Error('availability ' + res.status);
     return await res.json();
   }
-
+ 
   function peakOccupied(occ) {
     return Math.max(0, ...SEGMENT_KEYS.map(k => Number(occ[k]) || 0));
   }
-
+ 
   // Схема мест на карточке рейса (по самому загруженному участку)
   function seatsVisualizationHtml(occupied) {
     occupied = Math.min(Math.max(Number(occupied) || 0, 0), TOTAL_SEATS);
@@ -208,7 +208,7 @@
         <span class="seats-status ${statusClass}">${statusText}</span>
       </div>`;
   }
-
+ 
   // Шкала загрузки по участкам для админки (для обратного рейса — в порядке движения)
   function segmentLoadHtml(occ, direction) {
     const back = direction === 'return';
@@ -225,7 +225,7 @@
         </div>`;
     }).join('');
   }
-
+ 
   // ---- ЯНДЕКС.МЕТРИКА: ЦЕЛИ И ЭЛЕКТРОННАЯ КОММЕРЦИЯ ----
   const METRIKA_ID = 114068100;
   function reachGoal(goal, params) {
@@ -234,26 +234,29 @@
       if (params) ym(METRIKA_ID, 'reachGoal', goal, params); else ym(METRIKA_ID, 'reachGoal', goal);
     } catch (e) { /* аналитика не должна ломать сайт */ }
   }
-
-  // Бронирование = покупка: цель, параметры визита и «Покупка» для отчётов электронной коммерции
+ 
+  // Бронирование = покупка: цель для воронки + «Покупка» для отчёта «Электронная коммерция»
   function trackBookingSuccess({ orderId, totalPrice, totalPassengers, direction, rows }) {
     try {
       const id = String(orderId);
+ 
+      // 1. Цель для воронки
       if (typeof ym !== 'undefined') {
         ym(METRIKA_ID, 'reachGoal', 'booking_success');
-        ym(METRIKA_ID, 'params', {
-          order_price: totalPrice,          // итоговая сумма заявки
-          currency: 'RUB',
-          order_id: id,                     // номер заявки
-          passengers_count: totalPassengers // количество пассажиров
-        });
       }
+ 
+      // 2. Электронная коммерция (формат Метрики: init с ecommerce:"dataLayer" + push покупки).
+      // Каждая строка заявки — отдельный товар: price — цена за одно место, quantity — число мест,
+      // поэтому сумма price × quantity по всем товарам равна revenue.
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
         ecommerce: {
           currencyCode: 'RUB',
           purchase: {
-            actionField: { id },
+            actionField: {
+              id: id,
+              revenue: totalPrice
+            },
             products: rows.map(p => ({
               id: `${p.from}-${p.to}`,
               name: `${p.from} — ${p.to}`,
@@ -264,9 +267,11 @@
           }
         }
       });
-    } catch (e) { /* аналитика не должна ломать сайт */ }
+    } catch (err) {
+      console.error('Ошибка аналитики:', err);
+    }
   }
-
+ 
   // Звонки (tel:) и ВКонтакте: помечаем классами (в т.ч. ссылки, добавленные позже) и ловим клики одним обработчиком
   document.querySelectorAll('a[href^="tel:"]').forEach(a => a.classList.add('js-call-click'));
   document.querySelectorAll('a[href*="vk.com"], a[href*="vk.ru"]').forEach(a => a.classList.add('js-social-click'));
@@ -275,11 +280,11 @@
     if (call) { reachGoal('call_click', { phone: (call.getAttribute('href') || '').replace('tel:', '') }); return; }
     if (e.target.closest('.js-social-click')) reachGoal('social_click', { network: 'vk' });
   });
-
+ 
   // Кнопка «Оставить отзыв»
   const openReviewBtnEl = document.getElementById('openReviewBtn');
   if (openReviewBtnEl) openReviewBtnEl.addEventListener('click', () => reachGoal('open_review_modal'));
-
+ 
   // ---- УТИЛИТЫ ----
   function formatPhone(value) {
     let d = value.replace(/\D/g, '');
@@ -295,7 +300,7 @@
     if (p.length > 8) out += '-' + p.slice(8, 10);
     return out;
   }
-
+ 
   function setError(el, msg) {
     const field = el.closest('.field');
     if(!field) return;
@@ -303,7 +308,7 @@
     if (msg) { field.classList.add('has-error'); if (err) err.textContent = msg; }
     else { field.classList.remove('has-error'); if (err) err.textContent = ''; }
   }
-
+ 
   // ---- ПЛАВАЮЩАЯ ПАНЕЛЬ ----
   const socialSidebar = $('#socialSidebar');
   if (socialSidebar) {
@@ -312,7 +317,7 @@
       else socialSidebar.classList.remove('is-visible');
     }, { passive: true });
   }
-
+ 
   // ---- СЛАЙДЕР ----
   const heroSlider = $('#heroSlider');
   if (heroSlider) {
@@ -328,7 +333,7 @@
     if($('#sliderPrev')) $('#sliderPrev').addEventListener('click', () => goTo(curr - 1));
     dots.forEach(d => d.addEventListener('click', () => goTo(Number(d.dataset.index))));
   }
-
+ 
   // ---- АНОНСЫ НА ГЛАВНОЙ ----
   function renderAnnouncements() {
     const grid = $('#announcementsGrid');
@@ -353,7 +358,7 @@
         </div>
       `;
     }).join('');
-
+ 
     // Реальная занятость берётся с сервера (по самому загруженному участку своего направления)
     list.forEach(async ({ a }) => {
       try {
@@ -364,7 +369,7 @@
     });
   }
   renderAnnouncements();
-
+ 
   // ---- ЗАПОЛНЕНИЕ СПИСКА РЕЙСОВ ----
   function populateTrips() {
     const tripSelect = $('#fTrip');
@@ -375,7 +380,7 @@
       list.map(({ a, i }) => `<option value="${i}">Дата: ${fmtDate(a.date)} в ${a.time}, ${DIR_LABEL[tripDir(a)]}</option>`).join('');
   }
   populateTrips();
-
+ 
   // ---- ФОРМА БРОНИРОВАНИЯ ----
   const form = $('#bookingForm');
   const container = $('#passengersContainer');
@@ -384,7 +389,7 @@
   const totalPriceDisplay = $('#totalPriceDisplay');
   const totalDistanceDisplay = $('#totalDistanceDisplay');
   const MAX_SEATS = 8;
-
+ 
   // ---- Метрика: шаги воронки бронирования ----
   if (form) {
     // 1. Пользователь докрутил до формы бронирования (один раз за визит)
@@ -410,11 +415,11 @@
       }, 0);
     }, true);
   }
-
+ 
   // Занятость выбранного рейса и результат проверки (используются в calculateTotal / checkFormValidity)
   let tripOccupancy = null;
   let availabilityOk = true;
-
+ 
   function ensureSeatsHint(row) {
     let hint = row.querySelector('.seats-hint');
     if (!hint) {
@@ -424,11 +429,11 @@
     }
     return hint;
   }
-
+ 
   // Время точки посадки зависит от направления рейса
   const stopTime = (stop, dir) => dir === 'return' ? (stop.timeBack || '') : (stop.time || '');
   const currentDir = () => { const t = getSelectedTrip(); return t ? tripDir(t) : 'forward'; };
-
+ 
   // Недоступные сочетания «Откуда» / «Куда» отключаются в выпадающих списках
   function syncRouteOptions(row) {
     const fromSel = row.querySelector('.from-select'), toSel = row.querySelector('.to-select');
@@ -442,7 +447,7 @@
     apply(toSel, fromSel);
     apply(fromSel, toSel);
   }
-
+ 
   // Поле «Точка посадки» (создаётся, если его нет в разметке строки)
   function ensureStopField(row) {
     if (row.querySelector('.stop-select')) return;
@@ -451,7 +456,7 @@
     field.innerHTML = '<label>Точка посадки *</label><select class="stop-select" disabled><option value="">Сначала выберите «Откуда»</option></select><span class="field__error"></span>';
     row.appendChild(field);
   }
-
+ 
   // Подгружает адреса из CITY_STOPS для выбранного «Откуда»; единственная точка выбирается автоматически
   function refreshStopSelect(row) {
     const sel = row.querySelector('.stop-select');
@@ -475,7 +480,7 @@
     sel.dataset.city = city;
     sel.value = stops.length === 1 ? '0' : prev;
   }
-
+ 
   // Выбранная точка посадки строки: { time, address } или null
   function getRowStop(row, dir) {
     const sel = row.querySelector('.stop-select');
@@ -483,7 +488,7 @@
     const stop = (CITY_STOPS[row.querySelector('.from-select').value] || [])[Number(sel.value)];
     return stop ? { time: stopTime(stop, dir), address: stop.address } : null;
   }
-
+ 
   // Для каждой строки: проверка направления и «Свободно X мест на этом участке».
   // Строки заявки суммируются между собой, если пересекаются по участкам.
   function applyAvailability() {
@@ -502,7 +507,7 @@
     });
     rows.forEach((r, i) => {
       const hint = ensureSeatsHint(r.row);
-
+ 
       // участок должен идти в направлении выбранного рейса
       if (dir && r.range.length && !rowMatchesDirection(r.from, r.to, dir)) {
         hint.textContent = `Этот рейс идёт ${DIR_LABEL[dir]} — выберите участок в этом направлении`;
@@ -511,7 +516,7 @@
         return;
       }
       if (!tripOccupancy || r.range.length === 0) { hint.textContent = ''; hint.className = 'seats-hint'; return; }
-
+ 
       let worst = 0;
       r.range.forEach(s => {
         let load = Number(tripOccupancy[SEGMENT_KEYS[s]]) || 0;
@@ -533,7 +538,7 @@
       }
     });
   }
-
+ 
   // Загружает занятость выбранного рейса (с учётом направления) с сервера
   async function loadTripAvailability() {
     tripOccupancy = null;
@@ -551,7 +556,7 @@
     } catch (e) { console.error('Не удалось получить занятость рейса', e); }
     calculateTotal();
   }
-
+ 
   function updateSeatsCounter() {
     if (!container) return;
     let total = 0;
@@ -577,7 +582,7 @@
       else { addBtn.disabled = false; addBtn.style.opacity = '1'; addBtn.style.cursor = 'pointer'; }
     }
   }
-
+ 
   function calculateTotal() {
     if (!container) return;
     let totalSum = 0, maxKm = 0, isValidRoutes = true;
@@ -603,14 +608,14 @@
         }
       } else { pricePreview.textContent = '0 ₽'; isValidRoutes = false; }
     });
-
+ 
     if(totalPriceDisplay) totalPriceDisplay.textContent = `${totalSum} ₽`;
     if(totalDistanceDisplay) totalDistanceDisplay.textContent = `(${maxKm} км)`;
     updateSeatsCounter();
     applyAvailability();
     checkFormValidity();
   }
-
+ 
   function checkFormValidity() {
     if (!form) return;
     const baseFields = [$('#fName'), $('#fPhone'), $('#fEmail'), $('#fTrip')];
@@ -624,17 +629,17 @@
     });
     submitBtn.disabled = !(baseValid && routesValid && availabilityOk);
   }
-
+ 
   function setupRowEvents(row) {
     const fromSel = row.querySelector('.from-select');
     const toSel = row.querySelector('.to-select');
     const seatsSel = row.querySelector('.seats-select');
     const removeBtn = row.querySelector('.remove-row');
     const update = () => calculateTotal();
-
+ 
     ensureStopField(row);
     const stopSel = row.querySelector('.stop-select');
-
+ 
     fromSel.addEventListener('change', () => { syncRouteOptions(row); refreshStopSelect(row); update(); });
     toSel.addEventListener('change', () => { syncRouteOptions(row); update(); });
     stopSel.addEventListener('change', update);
@@ -654,18 +659,18 @@
       e.target.dataset.prevValue = newValue;
       update();
     });
-
+ 
     if (removeBtn) {
       removeBtn.addEventListener('click', () => {
         if ($$('.passenger-row', container).length > 1) { row.remove(); calculateTotal(); }
       });
     }
   }
-
+ 
   if (container && addBtn) {
     const firstRow = container.querySelector('.passenger-row');
     if (firstRow) setupRowEvents(firstRow);
-
+ 
     addBtn.addEventListener('click', () => {
       const newRow = document.createElement('div');
       newRow.className = 'passenger-row';
@@ -680,27 +685,27 @@
       setupRowEvents(newRow);
       calculateTotal();
     });
-
+ 
     $('#fPhone').addEventListener('input', (e) => { e.target.value = formatPhone(e.target.value); checkFormValidity(); });
     ['#fName', '#fEmail', '#fTrip'].forEach(sel => { $(sel).addEventListener('input', checkFormValidity); });
     $('#fTrip').addEventListener('change', loadTripAvailability);
   }
-
+ 
   // ---- ОТПРАВКА ФОРМЫ БРОНИРОВАНИЯ НА СЕРВЕР ----
   if (form) {
     const modal = $('#successModal');
     const okBtn = $('#modalOkBtn');
     let timerInterval;
-
+ 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (submitBtn.disabled) return;
-
+ 
       const phoneValue = $('#fPhone').value;
       const rows = $$('.passenger-row', container);
       const passengersData = [];
       let totalPrice = 0, maxKm = 0;
-
+ 
       rows.forEach(row => {
         const from = row.querySelector('.from-select').value;
         const to = row.querySelector('.to-select').value;
@@ -712,15 +717,15 @@
           if (data.km > maxKm) maxKm = data.km;
         }
       });
-
+ 
       const tripIndex = $('#fTrip').value;
       const announcements = JSON.parse(localStorage.getItem('uralway_announcements') || '[]');
       const selectedTrip = announcements[tripIndex];
-
+ 
       const originalBtnText = submitBtn.textContent;
       submitBtn.textContent = 'Отправка...';
       submitBtn.disabled = true;
-
+ 
       try {
         const mainRoute = passengersData[0];
         
@@ -728,7 +733,7 @@
         const tripDirection = tripDir(selectedTrip);
         const boardingRows = passengersData.map(p => ({ ...p, boarding: p.stop }));
         const firstBoarding = boardingRows[0].boarding;
-
+ 
         const routesString = boardingRows.map(p =>
           `${p.from} — ${p.to} (${p.km} км, ${p.seats} чел.${p.boarding ? `, посадка ${p.boarding.time ? p.boarding.time + ', ' : ''}${p.boarding.address}` : ''})`
         ).join(', ');
@@ -755,7 +760,7 @@
             comment: `Маршруты: ${routesString}` 
           })
         });
-
+ 
         if (!response.ok) {
           if (response.status === 403) throw new Error('BANNED');
           if (response.status === 400) {
@@ -765,7 +770,7 @@
           }
           throw new Error('Server Error');
         }
-
+ 
         // ---- Метрика: успешное бронирование (до показа окна «Спасибо») ----
         let bookingId = null;
         try { bookingId = (await response.json()).booking_id; } catch (_) { /* ответ без JSON */ }
@@ -776,7 +781,7 @@
           direction: tripDirection,
           rows: passengersData
         });
-
+ 
         if(modal) {
           $('#receiptTime').previousElementSibling.textContent = 'Время посадки:';
           $('#receiptAddress').previousElementSibling.textContent = 'Адрес посадки:';
@@ -788,7 +793,7 @@
             (boardingRows.length > 1 && p.boarding ? `<br><small>Посадка: ${p.boarding.time ? p.boarding.time + ', ' : ''}${p.boarding.address}</small>` : '')
           ).join('<br>');
           $('#receiptTotal').textContent = `${totalPrice} ₽`;
-
+ 
           modal.hidden = false;
           document.body.style.overflow = 'hidden';
           let timeLeft = 20;
@@ -803,7 +808,7 @@
             }, 1000);
           }
         }
-
+ 
         form.reset();
         while ($$('.passenger-row', container).length > 1) { container.lastElementChild.remove(); }
         const firstRow = container.querySelector('.passenger-row');
@@ -816,7 +821,7 @@
         calculateTotal();
         populateTrips();
         renderAnnouncements();
-
+ 
       } catch (error) {
         if (error.message === 'NO_SEATS') {
           alert(error.detail || 'На выбранном участке маршрута недостаточно свободных мест');
@@ -831,14 +836,14 @@
         checkFormValidity();
       }
     });
-
+ 
     if(okBtn) {
       okBtn.addEventListener('click', () => {
         if(!okBtn.disabled) { $('#successModal').hidden = true; document.body.style.overflow = ''; }
       });
     }
   }
-
+ 
   // ---- ФОРМА ПОДПИСКИ ----
  /* ВРЕМЕННО СКРЫТО: ФОРМА ПОДПИСКИ
   const subForm = $('#subscribeForm');
@@ -850,23 +855,23 @@
       const btn = $('#subBtn');
       const msgBox = $('#subMessages');
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
+ 
       if (!emailRegex.test(email)) {
         msgBox.innerHTML = '<div class="sub-msg sub-msg--error">✗ Пожалуйста, введите корректный email.</div>';
         return;
       }
-
+ 
       btn.textContent = 'Отправка...';
       btn.disabled = true;
       msgBox.innerHTML = '';
-
+ 
       try {
         const response = await fetch(`${API_URL}/api/subscribe`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: email })
         });
-
+ 
         if (response.ok) {
           msgBox.innerHTML = '<div class="sub-msg sub-msg--success">✓ Спасибо за подписку! Мы будем отправлять вам анонсы рейсов.</div>';
           subForm.reset();
@@ -888,7 +893,7 @@
   // ---- ОТЗЫВЫ ----
   const REVIEWS_KEY = 'uralway_reviews';
   let showAllReviews = false; // Флаг: показывать все или только 3
-
+ 
   function getStarsHtml(rating) {
     let html = '';
     for (let i = 1; i <= 5; i++) html += `<i class="fa-solid fa-star" style="color:${i <= rating ? 'var(--accent)' : '#d1d5db'}"></i>`;
@@ -903,20 +908,20 @@
     let reviews = JSON.parse(localStorage.getItem(REVIEWS_KEY) || '[]');
     let totalStars = reviews.reduce((sum, r) => sum + r.rating, 0);
     const avg = reviews.length ? (totalStars / reviews.length) : 0;
-
+ 
     if($('#avgRatingNum')) $('#avgRatingNum').textContent = avg.toFixed(1);
     if($('#reviewsCount')) $('#reviewsCount').textContent = reviews.length === 0 ? 'Нет отзывов' : `${reviews.length} отзыв(ов)`;
     if($('#avgRatingStars')) $('#avgRatingStars').style.width = `${(avg / 5) * 100}%`;
-
+ 
     if (reviews.length === 0) {
       list.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:var(--muted);">Пока нет отзывов. Станьте первым!</p>';
       if(btn) btn.style.display = 'none';
       return;
     }
-
+ 
     const sortedRevs = [...reviews].reverse();
     const displayRevs = showAllReviews ? sortedRevs : sortedRevs.slice(0, 3);
-
+ 
     list.innerHTML = displayRevs.map(r => `
       <article class="review-card">
         <div class="review-card__stars">${getStarsHtml(r.rating)}</div>
@@ -924,7 +929,7 @@
         <div class="review-card__meta"><span class="review-card__name">${r.name}</span><span class="review-card__date">${r.date}</span></div>
       </article>
     `).join('');
-
+ 
     if (btn) {
       if (reviews.length > 3) {
         btn.style.display = 'inline-flex';
@@ -942,9 +947,9 @@
       renderReviews();
     });
   }
-
+ 
   renderReviews();
-
+ 
   const reviewModal = $('#reviewModal');
   if (reviewModal) {
     $('#openReviewBtn').addEventListener('click', () => { reviewModal.hidden = false; document.body.style.overflow = 'hidden'; });
@@ -965,7 +970,7 @@
       if (!text.value.trim()) { setError(text, 'Напишите отзыв'); isValid = false; } else setError(text, '');
       if (!ratingInput) { alert('Поставьте оценку'); isValid = false; }
       if (!isValid) return;
-
+ 
       try {
         const banRes = await fetch(`${API_URL}/api/check_ban/${encodeURIComponent(phone.value.trim())}`);
         const banData = await banRes.json();
@@ -976,7 +981,7 @@
       } catch (err) {
         console.error("Ошибка проверки бана", err);
       }
-
+ 
       const newReview = { id: Date.now(), name: name.value, phone: phone.value, email: email.value, rating: Number(ratingInput.value), text: text.value, date: new Date().toLocaleDateString('ru-RU') };
       const stored = JSON.parse(localStorage.getItem(REVIEWS_KEY) || '[]');
       stored.push(newReview);
@@ -985,19 +990,19 @@
       renderReviews();
     });
   }
-
+ 
   // =======================================================
   // АДМИН-ПАНЕЛЬ
   // =======================================================
   const adminLogin = $('#adminLogin');
   const adminApp   = $('#adminApp');
-
+ 
   if (adminLogin && adminApp) {
     const ADMIN_PASSWORD = 'admin123';
     const STORAGE_KEY = 'transfer_admin_auth';
-
+ 
     const STATUS_LABEL = { new: 'Новая', confirmed: 'Подтверждена', cancelled: 'Отменена', completed: 'Завершена' };
-
+ 
     // Блоки каждой вкладки. Отсутствующие в HTML (например, закомментированные подписчики) просто пропускаются —
     // раньше обращение к null.style обрывало обработчик, и бан-лист оставался скрытым.
     const TAB_BLOCKS = {
@@ -1006,54 +1011,54 @@
       banned: ['tab-banned-table']
     };
     const ALL_TAB_BLOCKS = Object.values(TAB_BLOCKS).flat();
-
+ 
     $$('.tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         $$('.tab-btn').forEach(b => b.classList.remove('active', 'btn--cta'));
         $$('.tab-btn').forEach(b => b.classList.add('btn--outline'));
         btn.classList.remove('btn--outline');
         btn.classList.add('active', 'btn--cta');
-
+ 
         const target = btn.dataset.tab;
         ALL_TAB_BLOCKS.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
         (TAB_BLOCKS[target] || []).forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'block'; });
-
+ 
         // обёртка с формой и списком рейсов нужна только на вкладке заявок
         const split = document.querySelector('.admin-split');
         if (split) split.style.display = target === 'bookings' ? '' : 'none';
-
+ 
         if (target === 'banned') renderBannedUsers();
         else if (target === 'subscribers') renderSubscribers();
       });
     });
-
+ 
     function showApp() { adminLogin.hidden = true; adminApp.hidden = false; renderAdminTable(); renderAdminTrips(); }
     function showLogin() { adminApp.hidden = true; adminLogin.hidden = false; $('#adminPassword').value = ''; $('#loginError').hidden = true; }
-
+ 
     if (sessionStorage.getItem(STORAGE_KEY) === 'ok') showApp();
-
+ 
     $('#loginForm').addEventListener('submit', (e) => {
       e.preventDefault();
       if ($('#adminPassword').value === ADMIN_PASSWORD) { sessionStorage.setItem(STORAGE_KEY, 'ok'); showApp(); }
       else { $('#loginError').hidden = false; $('#adminPassword').value = ''; }
     });
-
+ 
     $('#logoutBtn').addEventListener('click', () => { sessionStorage.removeItem(STORAGE_KEY); showLogin(); });
-
+ 
     const addAnnForm = $('#addAnnouncementForm');
     if (addAnnForm) {
       addAnnForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-
+ 
         const driverId = $('#aDriverId').value; // один водитель на оба рейса цикла
         const forward = { date: $('#aDate').value, time: $('#aTime').value, address: $('#aAddress').value.trim() };
         const back = { date: $('#aReturnDate').value, time: $('#aReturnTime').value, address: $('#aReturnAddress').value.trim() };
-
+ 
         if (`${back.date}T${back.time}` < `${forward.date}T${forward.time}`) {
           alert('Обратный рейс не может быть раньше рейса «Туда».');
           return;
         }
-
+ 
         // 1. Две связанные записи (общий cycleId): «Туда» и «Обратно» — у каждой своя шкала занятости
         const cycleId = Date.now();
         const base = { cycleId, driverId, occupiedSeats: 0, phone: ADMIN_PHONES.join(', ') };
@@ -1062,7 +1067,7 @@
         stored.push({ ...base, id: cycleId + 1, direction: 'return', ...back });
         localStorage.setItem('uralway_announcements', JSON.stringify(stored));
         renderAdminTrips();
-
+ 
         // 2. Рассылка подписчикам: один email про весь цикл
         try {
           const response = await fetch(`${API_URL}/api/notify_subscribers`, {
@@ -1070,7 +1075,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ...forward, return_date: back.date, return_time: back.time, return_address: back.address })
           });
-
+ 
           if (response.ok) {
             alert('Цикл поездки добавлен (туда и обратно), рассылка писем запущена!');
           } else {
@@ -1079,11 +1084,11 @@
         } catch (error) {
           alert('Цикл добавлен, но сервер рассылки недоступен.');
         }
-
+ 
         addAnnForm.reset();
       });
     }
-
+ 
     async function renderAdminTrips() {
       const list = $('#adminTripsList');
       if (!list) return;
@@ -1105,7 +1110,7 @@
           <div class="seg-load" id="segLoad-${a.id}"><span class="seg-load__loading">Загрузка занятости…</span></div>
         </div>`;
       }).join('');
-
+ 
       // Реальная загрузка по участкам берётся из заявок на сервере (отдельно для «туда» и «обратно»)
       await Promise.all(items.map(async ({ a }) => {
         const box = document.getElementById(`segLoad-${a.id}`);
@@ -1114,7 +1119,7 @@
         catch (e) { box.innerHTML = '<span class="seg-load__loading">Не удалось получить занятость</span>'; }
       }));
     }
-
+ 
     window.deleteAdminTrip = (id) => {
       const data = getTrips();
       const rec = data.find(a => a.id === id);
@@ -1131,9 +1136,9 @@
       localStorage.setItem('uralway_announcements', JSON.stringify(data.filter(a => !ids.includes(a.id))));
       renderAdminTrips();
     };
-
+ 
     let applications = []; 
-
+ 
     async function renderAdminTable() {
       const tbody = $('#appsTableBody');
       if (!tbody) return;
@@ -1171,18 +1176,18 @@
         tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:red;">Ошибка подключения к серверу</td></tr>';
       }
     }
-
+ 
     function updateStats() {
       $('#statTotal').textContent = applications.length;
       $('#statNew').textContent = applications.filter(a => a.status === 'new').length;
       $('#statConfirmed').textContent = applications.filter(a => a.status === 'confirmed').length;
       $('#statCancelled').textContent = applications.filter(a => a.status === 'cancelled').length;
     }
-
+ 
     window.updateStatus = async (id, status) => {
       try { await fetch(`${API_URL}/api/bookings/${id}?status=${status}`, { method: 'PATCH' }); renderAdminTable(); renderAdminTrips(); } catch (e) { alert('Ошибка'); }
     };
-
+ 
     window.deleteApp = async (id) => {
       if (confirm('Удалить заявку?')) {
         try { await fetch(`${API_URL}/api/bookings/${id}`, { method: 'DELETE' }); renderAdminTable(); renderAdminTrips(); } catch (e) { alert('Ошибка'); }
@@ -1199,7 +1204,7 @@
         if (response.ok) { alert(`Номер ${phone} заблокирован.`); renderAdminTable(); } else { alert(`Ошибка`); }
       } catch (error) { alert('Ошибка подключения'); }
     };
-
+ 
     async function renderSubscribers() {
       const tbody = $('#subscribersTableBody');
       if (!tbody) return;
@@ -1214,7 +1219,7 @@
         `).join('');
       } catch (error) { tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:red;">Ошибка загрузки</td></tr>'; }
     }
-
+ 
     async function renderBannedUsers() {
       const tbody = $('#bannedTableBody');
       if (!tbody) return;
@@ -1240,7 +1245,7 @@
         tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--err);">Ошибка загрузки</td></tr>';
       }
     }
-
+ 
     window.unbanUser = async (phone) => {
       if (confirm(`Разбанить пользователя ${phone}?`)) {
         try {
