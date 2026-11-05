@@ -99,14 +99,14 @@
               <div class="cycle-leg cycle-leg--forward">
                 <h3 class="cycle-leg__title"><i class="fa-solid fa-arrow-right"></i> Туда <small>Магнитогорск ➔ Оренбург</small></h3>
                 <div class="field"><label>Дата *</label><input type="date" id="aDate" required></div>
-                <div class="field"><label>Время старта *</label><input type="time" id="aTime" required></div>
+                <div class="field"><label>Время старта *</label><input type="text" id="aTime" required inputmode="numeric" autocomplete="off" maxlength="5" placeholder="ЧЧ:ММ" pattern="([01][0-9]|2[0-3]):[0-5][0-9]" title="Время в 24-часовом формате, например 09:00 или 16:30"></div>
                 <div class="field field--wide"><label>Адрес старта *</label><input type="text" id="aAddress" required placeholder="г. Магнитогорск, Гостиный двор"></div>
               </div>
 
               <div class="cycle-leg cycle-leg--return">
                 <h3 class="cycle-leg__title"><i class="fa-solid fa-arrow-left"></i> Обратно <small>Оренбург ➔ Магнитогорск</small></h3>
                 <div class="field"><label>Дата * (может отличаться)</label><input type="date" id="aReturnDate" required></div>
-                <div class="field"><label>Время старта *</label><input type="time" id="aReturnTime" required></div>
+                <div class="field"><label>Время старта *</label><input type="text" id="aReturnTime" required inputmode="numeric" autocomplete="off" maxlength="5" placeholder="ЧЧ:ММ" pattern="([01][0-9]|2[0-3]):[0-5][0-9]" title="Время в 24-часовом формате, например 09:00 или 16:30"></div>
                 <div class="field field--wide"><label>Адрес старта *</label><input type="text" id="aReturnAddress" required placeholder="г. Оренбург, Автовокзал"></div>
               </div>
 
