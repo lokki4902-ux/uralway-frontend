@@ -642,3 +642,22 @@ section[id]{ scroll-margin-top:84px; }
   .seg-load__row{ grid-template-columns:1fr 44px; }
   .seg-load__bar{ grid-column:1 / -1; order:3; }
 }
+
+/* =========================================================
+   ЮРИДИЧЕСКОЕ: согласие на обработку данных и политика конфиденциальности
+   ========================================================= */
+.consent{ display:flex; align-items:flex-start; gap:10px; margin-top:24px; font-size:14px; line-height:1.5; color:var(--text); cursor:pointer; }
+.consent input{ width:20px; height:20px; margin-top:1px; flex-shrink:0; accent-color:var(--primary); cursor:pointer; }
+.consent a{ color:var(--primary); text-decoration:underline; text-underline-offset:2px; }
+.consent a:hover{ color:var(--primary-hover); }
+
+.modal__card--privacy{ max-width:720px; padding:30px 30px 24px; text-align:left; max-height:calc(100vh - 40px); display:flex; flex-direction:column; }
+.modal__card--privacy .modal__title{ margin-bottom:14px; text-align:left; }
+.privacy-text{ flex:1; overflow-y:auto; padding-right:8px; font-size:14.5px; line-height:1.65; color:var(--text); }
+.privacy-text h4{ margin:18px 0 6px; font-size:15.5px; }
+.privacy-text ul{ margin:6px 0 6px 20px; list-style:disc; }
+.privacy-text li{ margin-bottom:4px; }
+.privacy-note{ padding:10px 12px; font-size:13px; color:#7A4B00; background:#FFF7E0; border:1px solid #F5D58C; border-radius:8px; }
+.modal__card--privacy .modal__actions{ margin-top:18px; }
+.footer__legal a{ text-decoration:underline; text-underline-offset:2px; }
+.footer__legal a:hover{ color:#fff; }
