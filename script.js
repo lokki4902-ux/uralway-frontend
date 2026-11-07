@@ -427,7 +427,7 @@
         <div class="announcement-card is-visible">
           <h3><i class="fa-solid fa-calendar-day"></i> ${fmtDate(a.date)} в ${a.time}</h3>
           <p class="trip-dir"><i class="fa-solid fa-route"></i> ${DIR_LABEL[tripDir(a)]}</p>
-          <p><i class="fa-solid fa-location-dot"></i> Отправление: ${a.address}</p>
+          <p><i class="fa-solid fa-location-dot"></i> Отправление: ${esc(a.address)}</p>
           <p><i class="fa-solid fa-user-tie"></i> Водитель: ${driver.name}</p>
           <p><i class="fa-solid fa-car"></i> ${driver.car} (${driver.color})</p>
           <p><i class="fa-solid fa-hashtag"></i> Гос. номер: ${driver.number}</p>
@@ -701,6 +701,11 @@
     if (!form) return;
     const baseFields = [$('#fName'), $('#fPhone'), $('#fEmail'), $('#fTrip')];
     let baseValid = baseFields.every(el => el && el.value.trim() !== '');
+    // телефон введён полностью (11 цифр: +7 и 10 цифр номера)
+    baseValid = baseValid && $('#fPhone').value.replace(/\D/g, '').length >= 11;
+    // обязательное согласие с политикой конфиденциальности (152-ФЗ)
+    const consentEl = $('#fConsent');
+    const consentOk = !consentEl || consentEl.checked;
     const rows = $$('.passenger-row', container);
     let routesValid = rows.length > 0 && rows.every(row => {
       const f = row.querySelector('.from-select').value;
@@ -708,7 +713,7 @@
       const stopSel = row.querySelector('.stop-select');
       return f !== '' && t !== '' && f !== t && !!PRICES[`${f}-${t}`] && isRouteAllowed(f, t) && !!stopSel && stopSel.value !== '';
     });
-    submitBtn.disabled = !(baseValid && routesValid && availabilityOk);
+    submitBtn.disabled = !(baseValid && routesValid && availabilityOk && consentOk);
   }
 
   function setupRowEvents(row) {
@@ -769,6 +774,8 @@
 
     $('#fPhone').addEventListener('input', (e) => { e.target.value = formatPhone(e.target.value); checkFormValidity(); });
     ['#fName', '#fEmail', '#fTrip'].forEach(sel => { $(sel).addEventListener('input', checkFormValidity); });
+    const consentCheckbox = $('#fConsent');
+    if (consentCheckbox) consentCheckbox.addEventListener('change', checkFormValidity);
     $('#fTrip').addEventListener('change', loadTripAvailability);
   }
 
@@ -832,6 +839,7 @@
             trip_time: selectedTrip ? selectedTrip.time : '—',
             trip_address: selectedTrip ? selectedTrip.address : '—',
             trip_direction: tripDirection,
+            consent: true, // согласие на обработку персональных данных (чекбокс обязателен)
             boarding_time: (firstBoarding && firstBoarding.time) || null,
             boarding_address: firstBoarding ? firstBoarding.address : null,
             passengers: passengersData.reduce((acc, curr) => acc + curr.seats, 0),
@@ -844,6 +852,8 @@
 
         if (!response.ok) {
           if (response.status === 403) throw new Error('BANNED');
+          if (response.status === 429) throw new Error('RATE_LIMIT');
+          if (response.status === 422) throw new Error('INVALID_DATA');
           if (response.status === 400) {
             const err = new Error('NO_SEATS');
             try { err.detail = (await response.json()).detail; } catch (_) {}
@@ -904,7 +914,11 @@
         renderAnnouncements();
 
       } catch (error) {
-        if (error.message === 'NO_SEATS') {
+        if (error.message === 'RATE_LIMIT') {
+          alert('Слишком много заявок с вашего адреса. Подождите минуту и попробуйте снова.');
+        } else if (error.message === 'INVALID_DATA') {
+          alert('Проверьте правильность данных: телефон должен быть указан полностью, email — корректным.');
+        } else if (error.message === 'NO_SEATS') {
           alert(error.detail || 'На выбранном участке маршрута недостаточно свободных мест');
           await loadTripAvailability();
         } else if (error.message === 'BANNED') {
@@ -956,6 +970,8 @@
         if (response.ok) {
           msgBox.innerHTML = '<div class="sub-msg sub-msg--success">✓ Спасибо за подписку! Мы будем отправлять вам анонсы рейсов.</div>';
           subForm.reset();
+        } else if (response.status === 429) {
+          msgBox.innerHTML = '<div class="sub-msg sub-msg--warning" style="color:#d97706;">Слишком много попыток. Подождите минуту.</div>';
         } else if (response.status === 400) {
           msgBox.innerHTML = '<div class="sub-msg sub-msg--warning" style="color:#d97706;">Этот email уже подписан на рассылку.</div>';
         } else {
@@ -1006,8 +1022,8 @@
     list.innerHTML = displayRevs.map(r => `
       <article class="review-card">
         <div class="review-card__stars">${getStarsHtml(r.rating)}</div>
-        <p class="review-card__text">${r.text}</p>
-        <div class="review-card__meta"><span class="review-card__name">${r.name}</span><span class="review-card__date">${r.date}</span></div>
+        <p class="review-card__text">${esc(r.text)}</p>
+        <div class="review-card__meta"><span class="review-card__name">${esc(r.name)}</span><span class="review-card__date">${esc(r.date)}</span></div>
       </article>
     `).join('');
 
@@ -1030,6 +1046,30 @@
   }
 
   renderReviews();
+
+  // ---- ПОЛИТИКА КОНФИДЕНЦИАЛЬНОСТИ (модальное окно) ----
+  const privacyModal = $('#privacyModal');
+  if (privacyModal) {
+    let lastFocus = null;
+    const openPrivacy = (e) => {
+      if (e) e.preventDefault();
+      lastFocus = document.activeElement;
+      privacyModal.hidden = false;
+      document.body.style.overflow = 'hidden';
+      const closeBtn = privacyModal.querySelector('[data-privacy-focus]');
+      if (closeBtn) closeBtn.focus();
+    };
+    const closePrivacy = () => {
+      privacyModal.hidden = true;
+      document.body.style.overflow = '';
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    };
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('[data-open-privacy]')) openPrivacy(e);
+      else if (e.target.closest('[data-close-privacy]')) closePrivacy();
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !privacyModal.hidden) closePrivacy(); });
+  }
 
   const reviewModal = $('#reviewModal');
   if (reviewModal) {
@@ -1079,8 +1119,7 @@
   const adminApp   = $('#adminApp');
 
   if (adminLogin && adminApp) {
-    const ADMIN_PASSWORD = 'admin123';
-    const STORAGE_KEY = 'transfer_admin_auth';
+    const TOKEN_KEY = 'uralway_admin_token';
 
     const STATUS_LABEL = { new: 'Новая', confirmed: 'Подтверждена', cancelled: 'Отменена', completed: 'Завершена' };
 
@@ -1116,15 +1155,71 @@
     function showApp() { adminLogin.hidden = true; adminApp.hidden = false; renderAdminTable(); renderAdminTrips(); }
     function showLogin() { adminApp.hidden = true; adminLogin.hidden = false; $('#adminPassword').value = ''; $('#loginError').hidden = true; }
 
-    if (sessionStorage.getItem(STORAGE_KEY) === 'ok') showApp();
+    // Токен хранится только в sessionStorage (исчезает при закрытии вкладки)
+    const getToken = () => sessionStorage.getItem(TOKEN_KEY);
+    const clearSession = () => sessionStorage.removeItem(TOKEN_KEY);
+    let sessionNoticeShown = false;
 
-    $('#loginForm').addEventListener('submit', (e) => {
+    // fetch к защищённым эндпоинтам: добавляет Authorization: Bearer <token>; при 401 возвращает на экран входа
+    async function adminFetch(path, options = {}) {
+      const headers = Object.assign({}, options.headers);
+      const token = getToken();
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const res = await fetch(`${API_URL}${path}`, Object.assign({}, options, { headers }));
+      if (res.status === 401) {
+        clearSession();
+        showLogin();
+        if (!sessionNoticeShown) {
+          sessionNoticeShown = true;
+          alert('Сессия истекла. Войдите снова.');
+          setTimeout(() => { sessionNoticeShown = false; }, 1000);
+        }
+        throw new Error('UNAUTHORIZED');
+      }
+      return res;
+    }
+
+    // старый флаг входа (без токена) больше не действует
+    sessionStorage.removeItem('transfer_admin_auth');
+    if (getToken()) {
+      fetch(`${API_URL}/api/me`, { headers: { Authorization: `Bearer ${getToken()}` } })
+        .then(res => { if (res.ok) showApp(); else clearSession(); })
+        .catch(() => clearSession());
+    }
+
+    $('#loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      if ($('#adminPassword').value === ADMIN_PASSWORD) { sessionStorage.setItem(STORAGE_KEY, 'ok'); showApp(); }
-      else { $('#loginError').hidden = false; $('#adminPassword').value = ''; }
+      const errBox = $('#loginError');
+      const submit = $('#loginForm button[type="submit"]');
+      const password = $('#adminPassword').value;
+      errBox.hidden = true;
+      if (submit) submit.disabled = true;
+      try {
+        const res = await fetch(`${API_URL}/api/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          sessionStorage.setItem(TOKEN_KEY, data.access_token);
+          showApp();
+          return;
+        }
+        errBox.textContent = res.status === 429 ? 'Слишком много попыток. Подождите минуту.'
+          : res.status === 503 ? 'Вход не настроен на сервере (не задан ADMIN_PASSWORD).'
+          : 'Неверный пароль.';
+        errBox.hidden = false;
+      } catch (err) {
+        errBox.textContent = 'Сервер недоступен. Попробуйте позже.';
+        errBox.hidden = false;
+      } finally {
+        $('#adminPassword').value = '';
+        if (submit) submit.disabled = false;
+      }
     });
 
-    $('#logoutBtn').addEventListener('click', () => { sessionStorage.removeItem(STORAGE_KEY); showLogin(); });
+    $('#logoutBtn').addEventListener('click', () => { clearSession(); showLogin(); });
 
     const addAnnForm = $('#addAnnouncementForm');
     if (addAnnForm) {
@@ -1157,7 +1252,7 @@
 
         // 2. Рассылка подписчикам: один email про весь цикл
         try {
-          const response = await fetch(`${API_URL}/api/notify_subscribers`, {
+          const response = await adminFetch('/api/notify_subscribers', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ...forward, return_date: back.date, return_time: back.time, return_address: back.address })
@@ -1190,7 +1285,7 @@
             <div>
               <strong>${fmtDate(a.date)} в ${a.time}</strong>
               <span class="dir-badge dir-badge--${dir}">${dir === 'return' ? 'Обратно' : 'Туда'} · ${DIR_LABEL[dir]}</span><br>
-              <span style="font-size: 12px; color: var(--muted);">${a.address}${driver ? ' · ' + driver.name : ''}</span>
+              <span style="font-size: 12px; color: var(--muted);">${esc(a.address)}${driver ? ' · ' + esc(driver.name) : ''}</span>
             </div>
             <button class="row-btn row-btn--delete" onclick="deleteAdminTrip(${a.id})" style="margin-left: auto;">Удалить</button>
           </div>
@@ -1231,22 +1326,23 @@
       if (!tbody) return;
       tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Загрузка данных с сервера...</td></tr>';
       try {
-        const response = await fetch(`${API_URL}/api/bookings`);
+        const response = await adminFetch('/api/bookings');
+        if (!response.ok) throw new Error('bookings ' + response.status);
         applications = await response.json();
         if (applications.length === 0) { tbody.innerHTML = ''; $('#tableEmpty').hidden = false; updateStats(); return; }
         $('#tableEmpty').hidden = true;
         tbody.innerHTML = applications.map(app => `
-          <tr data-id="${app.id}">
-            <td>${app.id}</td><td>${esc(app.name)}</td><td>${esc(app.phone)}</td>
+          <tr data-id="${Number(app.id)}">
+            <td>${Number(app.id)}</td><td>${esc(app.name)}</td><td>${esc(app.phone)}</td>
             <td>
-              <strong>${fmtDate(app.trip_date)} в ${app.boarding_address ? (app.boarding_time || 'время уточняется') : (app.trip_time || '—')}</strong><br>
+              <strong>${esc(fmtDate(app.trip_date))} в ${app.boarding_address ? (app.boarding_time || 'время уточняется') : (app.trip_time || '—')}</strong><br>
               <small>${esc(app.boarding_address) || '—'}</small><br>
               <small style="color: var(--muted);">${DIR_LABEL[app.trip_direction === 'return' ? 'return' : 'forward']}</small>
             </td>
             <td style="max-width:200px; font-size:12px;">${esc(app.comment) || '—'}</td>
             <td><strong>${app.passengers || 1} чел.</strong></td>
             <td><strong>${app.total_price || 0} ₽</strong><br><small>${app.total_km || 0} км</small></td>
-            <td><span class="badge badge--${app.status}">${STATUS_LABEL[app.status] || app.status}</span></td>
+            <td><span class="badge badge--${esc(app.status)}">${esc(STATUS_LABEL[app.status] || app.status)}</span></td>
             <td>
               <div class="row-actions">
                 <button class="row-btn row-btn--confirm" onclick="updateStatus(${app.id}, 'confirmed')">Подтвердить</button>
@@ -1272,12 +1368,12 @@
     }
 
     window.updateStatus = async (id, status) => {
-      try { await fetch(`${API_URL}/api/bookings/${id}?status=${status}`, { method: 'PATCH' }); renderAdminTable(); renderAdminTrips(); } catch (e) { alert('Ошибка'); }
+      try { const r = await adminFetch(`/api/bookings/${id}?status=${encodeURIComponent(status)}`, { method: 'PATCH' }); if (!r.ok) throw new Error('status'); renderAdminTable(); renderAdminTrips(); } catch (e) { if (e.message !== 'UNAUTHORIZED') alert('Ошибка'); }
     };
 
     window.deleteApp = async (id) => {
       if (confirm('Удалить заявку?')) {
-        try { await fetch(`${API_URL}/api/bookings/${id}`, { method: 'DELETE' }); renderAdminTable(); renderAdminTrips(); } catch (e) { alert('Ошибка'); }
+        try { const r = await adminFetch(`/api/bookings/${id}`, { method: 'DELETE' }); if (!r.ok) throw new Error('delete'); renderAdminTable(); renderAdminTrips(); } catch (e) { if (e.message !== 'UNAUTHORIZED') alert('Ошибка'); }
       }
     };
     
@@ -1285,11 +1381,11 @@
       const reason = prompt(`Укажите причину бана для ${phone}:`);
       if (reason === null) return; 
       try {
-        const response = await fetch(`${API_URL}/api/ban_user/${encodeURIComponent(phone)}`, {
+        const response = await adminFetch(`/api/ban_user/${encodeURIComponent(phone)}`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason: reason || "Без указания причины" })
         });
         if (response.ok) { alert(`Номер ${phone} заблокирован.`); renderAdminTable(); } else { alert(`Ошибка`); }
-      } catch (error) { alert('Ошибка подключения'); }
+      } catch (error) { if (error.message !== 'UNAUTHORIZED') alert('Ошибка подключения'); }
     };
 
     async function renderSubscribers() {
@@ -1297,12 +1393,13 @@
       if (!tbody) return;
       tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Загрузка...</td></tr>';
       try {
-        const response = await fetch(`${API_URL}/api/subscribers`);
+        const response = await adminFetch('/api/subscribers');
+        if (!response.ok) throw new Error('subscribers ' + response.status);
         const subs = await response.json();
         if (subs.length === 0) { tbody.innerHTML = ''; $('#subsTableEmpty').hidden = false; return; }
         $('#subsTableEmpty').hidden = true;
         tbody.innerHTML = subs.map(s => `
-          <tr><td>${s.id}</td><td><strong>${s.email}</strong></td><td>${new Date(s.created_at).toLocaleString('ru-RU')}</td></tr>
+          <tr><td>${s.id}</td><td><strong>${esc(s.email)}</strong></td><td>${new Date(s.created_at).toLocaleString('ru-RU')}</td></tr>
         `).join('');
       } catch (error) { tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:red;">Ошибка загрузки</td></tr>'; }
     }
@@ -1312,7 +1409,7 @@
       if (!tbody) return;
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Загрузка...</td></tr>';
       try {
-        const response = await fetch(`${API_URL}/api/banned_users`);
+        const response = await adminFetch('/api/banned_users');
         if (!response.ok) throw new Error('banned_users ' + response.status);
         const users = await response.json();
         if (users.length === 0) { tbody.innerHTML = ''; $('#bannedTableEmpty').hidden = false; return; }
@@ -1336,7 +1433,7 @@
     window.unbanUser = async (phone) => {
       if (confirm(`Разбанить пользователя ${phone}?`)) {
         try {
-          const response = await fetch(`${API_URL}/api/unban_user/${encodeURIComponent(phone)}`, { method: 'POST' });
+          const response = await adminFetch(`/api/unban_user/${encodeURIComponent(phone)}`, { method: 'POST' });
           if (response.ok) { alert('Пользователь разбанен'); renderBannedUsers(); renderAdminTable(); }
           else { alert('Не удалось разбанить пользователя'); }
         } catch (error) { alert('Ошибка подключения'); }
