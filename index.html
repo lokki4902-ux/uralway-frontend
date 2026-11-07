@@ -4,7 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#00427A">
-  <meta name="description" content="Регулярные межгородские перевозки Магнитогорск — Оренбург на комфортных минивэнах. Бронирование мест онлайн.">
+  <meta name="description" content="Регулярные межгородские перевозки Магнитогорск — Оренбург на комфортных минивэнах. Бронирование мест онлайн, остановки в Сибае, Баймаке, Зилаире и других городах.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://uralway-pages.pages.dev/">
+
+  <!-- Open Graph / соцсети -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="УралWay">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:title" content="УралWay — Межгородские пассажирские перевозки Магнитогорск — Оренбург">
+  <meta property="og:description" content="Регулярные рейсы на комфортных минивэнах. Выберите маршрут и дату, забронируйте место онлайн.">
+  <meta property="og:url" content="https://uralway-pages.pages.dev/">
+  <meta property="og:image" content="https://uralway-pages.pages.dev/van-1.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="УралWay — Межгородские пассажирские перевозки">
+  <meta name="twitter:description" content="Регулярные рейсы Магнитогорск — Оренбург. Бронирование мест онлайн.">
+  <meta name="twitter:image" content="https://uralway-pages.pages.dev/van-1.jpg">
   <title>УралWay — Межгородские пассажирские перевозки</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -223,6 +238,11 @@
               </div>
             </div>
           </div>
+
+          <label class="consent" for="fConsent">
+            <input type="checkbox" id="fConsent" required>
+            <span>Я согласен(на) с <a href="#privacy" data-open-privacy>политикой конфиденциальности</a> и даю согласие на обработку персональных данных (имя, телефон, email)</span>
+          </label>
 
           <div class="booking-form__footer">
             <div class="total-calc">
@@ -447,7 +467,7 @@
         </div>
 
       </div>
-      <div class="footer__bottom">© 2026 УралWay. Все права защищены.</div>
+      <div class="footer__bottom">© 2026 УралWay. Все права защищены. <span class="footer__legal">· <a href="#privacy" data-open-privacy>Политика конфиденциальности</a></span></div>
     </div>
   </footer>
 
@@ -517,6 +537,55 @@
           <button type="submit" class="btn btn--cta">Отправить</button>
         </div>
       </form>
+    </div>
+  </div>
+
+    <!-- Политика конфиденциальности (152-ФЗ) -->
+  <div class="modal" id="privacyModal" hidden>
+    <div class="modal__overlay" data-close-privacy></div>
+    <div class="modal__card modal__card--privacy" role="dialog" aria-modal="true" aria-labelledby="privacyTitle">
+      <h3 class="modal__title" id="privacyTitle">Политика конфиденциальности</h3>
+      <div class="privacy-text">
+        <p class="privacy-note">Текст — шаблон. Перед запуском замените значения в квадратных скобках данными оператора и проверьте документ у юриста.</p>
+
+        <h4>1. Оператор персональных данных</h4>
+        <p>Оператор: [полное наименование организации или ФИО индивидуального предпринимателя], ИНН [ИНН], адрес: [адрес]. Связь с оператором: +7 (919) 400-64-14, +7 (919) 325-15-39, [адрес электронной почты].</p>
+
+        <h4>2. Какие данные мы собираем</h4>
+        <ul>
+          <li>имя, номер телефона и адрес электронной почты, которые вы указываете в форме бронирования;</li>
+          <li>данные заявки: рейс, маршрут, точка посадки, количество пассажиров, комментарий;</li>
+          <li>технические данные: IP-адрес, сведения о браузере и cookie-файлы (в том числе сервиса «Яндекс.Метрика»).</li>
+        </ul>
+
+        <h4>3. Цели обработки</h4>
+        <ul>
+          <li>оформление и выполнение заявки на поездку, связь с вами по вопросам рейса;</li>
+          <li>информирование о ближайших рейсах (если вы подписались на рассылку);</li>
+          <li>улучшение работы сайта на основе обезличенной статистики посещений.</li>
+        </ul>
+
+        <h4>4. Основание обработки</h4>
+        <p>Обработка выполняется на основании вашего согласия (ст. 9 Федерального закона № 152-ФЗ «О персональных данных»), которое вы даёте, отметив соответствующий пункт в форме бронирования.</p>
+
+        <h4>5. Передача данных</h4>
+        <p>Для организации поездки имя, телефон и точка посадки передаются водителю рейса. Данные могут обрабатываться провайдерами хостинга и сервиса отправки почты, а статистика посещений — сервисом «Яндекс.Метрика». Мы не продаём персональные данные и не передаём их иным третьим лицам, кроме случаев, предусмотренных законом.</p>
+
+        <h4>6. Сроки хранения</h4>
+        <p>Данные хранятся не дольше, чем это нужно для целей обработки, но не более [срок, например 3 года] после последней поездки, либо до отзыва вами согласия.</p>
+
+        <h4>7. Ваши права</h4>
+        <p>Вы вправе запросить сведения об обработке своих данных, потребовать их уточнения или удаления, а также отозвать согласие. Для этого свяжитесь с нами по телефонам или почте, указанным выше. Отзыв согласия не влияет на законность обработки, выполненной до отзыва.</p>
+
+        <h4>8. Защита данных</h4>
+        <p>Мы принимаем организационные и технические меры защиты: доступ к данным имеют только уполномоченные лица, администрирование защищено паролем, соединение с сервером шифруется.</p>
+
+        <h4>9. Изменения политики</h4>
+        <p>Актуальная версия всегда размещена на этой странице. Дата последнего обновления: [дата].</p>
+      </div>
+      <div class="modal__actions">
+        <button type="button" class="btn btn--cta modal__btn" data-close-privacy data-privacy-focus>Понятно</button>
+      </div>
     </div>
   </div>
 
