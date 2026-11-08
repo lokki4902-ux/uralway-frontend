@@ -489,6 +489,7 @@ section[id]{ scroll-margin-top:84px; }
    ========================================================= */
 .admin-body{ min-height:100vh; background:var(--bg-alt); }
 .admin-app[hidden],
+.admin-login[hidden],
 .login-card__error[hidden],
 .table-empty[hidden]{ display:none !important; }
 
@@ -665,3 +666,13 @@ section[id]{ scroll-margin-top:84px; }
 /* Ручная заявка в админке */
 .manual-footer{ grid-column:1 / -1; display:flex; align-items:center; flex-wrap:wrap; gap:8px 20px; font-size:14px; color:var(--muted); }
 .manual-footer strong{ font-size:22px; font-weight:700; color:var(--brand); }
+
+/* Доп. услуги: переключатель «Трансфер / Посылка» и сводка */
+.admin-form [hidden]{ display:none !important; }
+.seg-switch{ grid-column:1 / -1; position:relative; justify-self:start; display:inline-flex; gap:4px; padding:4px; background:var(--bg-alt); border:1px solid var(--line); border-radius:10px; }
+.seg-switch input{ position:absolute; opacity:0; pointer-events:none; }
+.seg-switch label{ display:inline-flex; align-items:center; gap:8px; padding:9px 20px; border-radius:8px; font-size:14px; font-weight:600; color:var(--muted); cursor:pointer; transition:background var(--t), color var(--t); }
+.seg-switch label:hover{ color:var(--text); }
+.seg-switch input:checked + label{ color:var(--brand); background:#fff; box-shadow:var(--shadow); }
+.seg-switch input:focus-visible + label{ outline:2px solid var(--primary); outline-offset:2px; }
+.extra-summary{ margin-top:14px; font-size:14px; color:var(--muted); }
