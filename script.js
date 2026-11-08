@@ -1126,7 +1126,7 @@
     // Блоки каждой вкладки. Отсутствующие в HTML (например, закомментированные подписчики) просто пропускаются —
     // раньше обращение к null.style обрывало обработчик, и бан-лист оставался скрытым.
     const TAB_BLOCKS = {
-      bookings: ['tab-bookings', 'tab-trips', 'tab-bookings-table'],
+      bookings: ['tab-bookings', 'tab-trips', 'tab-manual-booking', 'tab-bookings-table'],
       subscribers: ['tab-subscribers-table'],
       banned: ['tab-banned-table']
     };
@@ -1274,6 +1274,7 @@
     async function renderAdminTrips() {
       const list = $('#adminTripsList');
       if (!list) return;
+      fillManualTrips(); // список рейсов в форме ручной заявки
       const items = sortedTrips();
       if (items.length === 0) { list.innerHTML = '<p style="color:var(--muted);">Нет созданных рейсов.</p>'; return; }
       list.innerHTML = items.map(({ a }) => {
@@ -1318,6 +1319,132 @@
       localStorage.setItem('uralway_announcements', JSON.stringify(data.filter(a => !ids.includes(a.id))));
       renderAdminTrips();
     };
+
+    // ---- РУЧНАЯ ЗАЯВКА (клиент позвонил): создаётся на сервере и передаётся в Яндекс.Метрику как офлайн-визит ----
+    const manualForm = $('#manualBookingForm');
+
+    function manualTrip() {
+      const sel = $('#mbTrip');
+      return sel && sel.value !== '' ? (getTrips().find(t => String(t.id) === sel.value) || null) : null;
+    }
+
+    // Список рейсов (значение — id рейса, чтобы выбор не «съезжал» после удаления/добавления)
+    function fillManualTrips() {
+      const sel = $('#mbTrip');
+      if (!sel) return;
+      const prev = sel.value;
+      sel.innerHTML = '<option value="">Выберите рейс...</option>' + sortedTrips().map(({ a }) =>
+        `<option value="${Number(a.id)}">${esc(`${fmtDate(a.date)} в ${a.time}, ${DIR_LABEL[tripDir(a)]}`)}</option>`).join('');
+      if (Array.from(sel.options).some(o => o.value === prev)) sel.value = prev;
+      updateManualForm();
+    }
+
+    // Пересчёт точек посадки, доступных маршрутов, цены и подсказки
+    function updateManualForm() {
+      if (!manualForm) return;
+      const trip = manualTrip(), dir = trip ? tripDir(trip) : 'forward';
+      const fromSel = $('#mbFrom'), toSel = $('#mbTo'), stopSel = $('#mbStop'), hint = $('#mbHint');
+      syncRouteOptions({ querySelector: (q) => (q === '.from-select' ? fromSel : toSel) });
+
+      const city = fromSel.value, stops = stopsFor(city, dir);
+      const prev = (stopSel.dataset.city === city && stopSel.dataset.dir === dir) ? stopSel.value : '';
+      if (!city || stops.length === 0) {
+        stopSel.innerHTML = `<option value="">${city ? 'Нет точек посадки' : 'Сначала выберите «Откуда»'}</option>`;
+        stopSel.disabled = true;
+      } else {
+        stopSel.disabled = false;
+        stopSel.innerHTML = (stops.length > 1 ? '<option value="">Выберите точку посадки…</option>' : '') +
+          stops.map((st, i) => `<option value="${i}">${esc(st.time ? `${st.time} — ${st.address}` : st.address)}</option>`).join('');
+        stopSel.value = stops.length === 1 ? '0' : prev;
+      }
+      stopSel.dataset.city = city;
+      stopSel.dataset.dir = dir;
+
+      const seats = Number($('#mbSeats').value) || 1, from = fromSel.value, to = toSel.value;
+      const data = from && to ? PRICES[`${from}-${to}`] : null;
+      $('#mbPrice').textContent = !from || !to ? '0 ₽' : (data ? `${data.price * seats} ₽` : 'Маршрут не найден');
+      hint.textContent = (trip && from && to && !rowMatchesDirection(from, to, dir))
+        ? `Этот рейс идёт ${DIR_LABEL[dir]} — выберите участок в этом направлении` : '';
+      hint.className = 'seats-hint' + (hint.textContent ? ' is-over' : '');
+    }
+
+    // Проверка формы и сбор данных для сервера; { error } или { payload }
+    function readManualForm() {
+      const trip = manualTrip();
+      if (!trip) return { error: 'Выберите рейс.' };
+      const dir = tripDir(trip);
+      const name = $('#mbName').value.trim(), phone = $('#mbPhone').value.trim();
+      const email = $('#mbEmail').value.trim(), from = $('#mbFrom').value, to = $('#mbTo').value;
+      const seats = Number($('#mbSeats').value) || 1;
+      if (!name) return { error: 'Укажите имя клиента.' };
+      if (phone.replace(/\D/g, '').length < 11) return { error: 'Укажите телефон клиента полностью.' };
+      if (!from || !to || from === to) return { error: 'Выберите «Откуда» и «Куда».' };
+      const data = PRICES[`${from}-${to}`];
+      if (!data || !isRouteAllowed(from, to)) return { error: 'Такого маршрута нет в прайс-листе.' };
+      if (!rowMatchesDirection(from, to, dir)) return { error: `Этот рейс идёт ${DIR_LABEL[dir]} — выберите участок в этом направлении.` };
+      const stops = stopsFor(from, dir), stopSel = $('#mbStop');
+      const stop = stops.length && stopSel.value !== '' ? stops[Number(stopSel.value)] : null;
+      if (stops.length && !stop) return { error: 'Выберите точку посадки.' };
+
+      const price = data.price * seats, extra = $('#mbComment').value.trim();
+      return { payload: {
+        source: 'manual',
+        phone, name, email: email || null,
+        from_city: from, to_city: to,
+        trip_date: trip.date, trip_time: trip.time, trip_address: trip.address, trip_direction: dir,
+        boarding_time: (stop && stop.time) || null, boarding_address: stop ? stop.address : null,
+        passengers: seats,
+        segments: [{ from_city: from, to_city: to, seats, price }],
+        total_price: price, total_km: data.km,
+        comment: `Ручная заявка (звонок). Маршрут: ${from} — ${to} (${data.km} км, ${seats} чел.${stop ? `, посадка ${stop.time ? stop.time + ', ' : ''}${stop.address}` : ''})${extra ? '. ' + extra : ''}`
+      } };
+    }
+
+    if (manualForm) {
+      const cities = Object.keys(CITY_STOPS.forward);
+      ['#mbFrom', '#mbTo'].forEach(sel => {
+        $(sel).innerHTML = '<option value="">Выберите...</option>' + cities.map(c => `<option>${esc(c)}</option>`).join('');
+      });
+      ['#mbTrip', '#mbFrom', '#mbTo', '#mbSeats', '#mbStop'].forEach(sel => $(sel).addEventListener('change', updateManualForm));
+      $('#mbPhone').addEventListener('input', (e) => { e.target.value = formatPhone(e.target.value); });
+
+      manualForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const { error, payload } = readManualForm();
+        if (error) { alert(error); return; }
+        const btn = $('#mbSubmit');
+        btn.disabled = true;
+        try {
+          const res = await adminFetch('/api/admin/booking', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (res.ok) {
+            const result = await res.json().catch(() => ({}));
+            alert(result.analytics_sent
+              ? 'Заявка создана и передана в аналитику'
+              : 'Заявка создана, но передать её в аналитику не удалось (подробности в логах сервера)');
+            manualForm.reset();
+            updateManualForm();
+            renderAdminTable();
+            renderAdminTrips();
+          } else if (res.status === 400 || res.status === 403) {
+            const body = await res.json().catch(() => ({}));
+            alert(body.detail || 'Заявку создать не удалось');
+          } else if (res.status === 422) {
+            alert('Проверьте данные заявки: телефон должен быть полным, email — корректным.');
+          } else {
+            alert('Ошибка сервера. Попробуйте позже.');
+          }
+        } catch (err) {
+          if (err.message !== 'UNAUTHORIZED') alert('Ошибка подключения к серверу');
+        } finally {
+          btn.disabled = false;
+        }
+      });
+      fillManualTrips();
+    }
 
     let applications = []; 
 
