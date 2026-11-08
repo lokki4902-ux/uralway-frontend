@@ -1128,6 +1128,7 @@
     const TAB_BLOCKS = {
       bookings: ['tab-bookings', 'tab-trips', 'tab-manual-booking', 'tab-bookings-table'],
       subscribers: ['tab-subscribers-table'],
+      'extra-services': ['tab-extra-services', 'tab-extra-services-table'],
       banned: ['tab-banned-table']
     };
     const ALL_TAB_BLOCKS = Object.values(TAB_BLOCKS).flat();
@@ -1149,6 +1150,7 @@
 
         if (target === 'banned') renderBannedUsers();
         else if (target === 'subscribers') renderSubscribers();
+        else if (target === 'extra-services') loadExtraServices();
       });
     });
 
@@ -1444,6 +1446,125 @@
         }
       });
       fillManualTrips();
+    }
+
+    // ---- ДОПОЛНИТЕЛЬНЫЕ УСЛУГИ: трансфер и посылки ----
+    const extraForm = $('#extraServiceForm');
+    const EXTRA_LABEL = { transfer: 'Трансфер', parcel: 'Посылка' };
+    const extraType = () => { const r = document.querySelector('input[name="esType"]:checked'); return r ? r.value : 'transfer'; };
+
+    // Переключатель «Трансфер / Посылка»: показывает нужные поля
+    function setExtraType() {
+      const parcel = extraType() === 'parcel';
+      $$('.es-transfer-only').forEach(el => { el.hidden = parcel; });
+      $$('.es-parcel-only').forEach(el => { el.hidden = !parcel; });
+      $('#esNameLabel').textContent = parcel ? 'Имя отправителя *' : 'Имя клиента *';
+      $('#esPhoneLabel').textContent = parcel ? 'Телефон отправителя *' : 'Телефон клиента *';
+    }
+
+    // Проверка формы и сбор данных: { error } или { payload }
+    function readExtraForm() {
+      const type = extraType(), parcel = type === 'parcel';
+      const name = $('#esName').value.trim(), phone = $('#esPhone').value.trim();
+      const from = parcel ? $('#esFromSel').value : $('#esFromText').value.trim();
+      const to = parcel ? $('#esToSel').value : $('#esToText').value.trim();
+      const delivery = parcel ? $('#esDelivery').value.trim() : '';
+      const date = $('#esDate').value, amountRaw = $('#esAmount').value.trim();
+
+      if (!name) return { error: parcel ? 'Укажите имя отправителя.' : 'Укажите имя клиента.' };
+      if (phone.replace(/\D/g, '').length < 11) return { error: 'Укажите телефон полностью.' };
+      if (!from || !to) return { error: 'Укажите, откуда и куда.' };
+      if (parcel && from === to) return { error: 'Города отправления и доставки совпадают.' };
+      if (parcel && !delivery) return { error: 'Укажите точный адрес доставки.' };
+      if (!date) return { error: 'Укажите дату.' };
+      if (amountRaw === '' || !Number.isInteger(Number(amountRaw)) || Number(amountRaw) < 0) return { error: 'Укажите стоимость (целое число, ₽).' };
+
+      return { payload: {
+        service_type: type, client_name: name, phone,
+        from_location: from, to_location: to,
+        delivery_address: parcel ? delivery : null,
+        service_date: date, amount: Number(amountRaw),
+        comment: $('#esComment').value.trim() || null
+      } };
+    }
+
+    // Таблица всех услуг
+    async function loadExtraServices() {
+      const tbody = $('#extraServicesTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Загрузка...</td></tr>';
+      try {
+        const res = await adminFetch('/api/extra-services');
+        if (!res.ok) throw new Error('extra-services ' + res.status);
+        const items = await res.json();
+        const empty = $('#extraServicesEmpty'), summary = $('#extraServicesSummary');
+        if (items.length === 0) { tbody.innerHTML = ''; empty.hidden = false; summary.textContent = ''; return; }
+        empty.hidden = true;
+        tbody.innerHTML = items.map(x => `
+          <tr>
+            <td><span class="badge ${x.service_type === 'parcel' ? 'badge--confirmed' : 'badge--completed'}">${esc(EXTRA_LABEL[x.service_type] || x.service_type)}</span></td>
+            <td><strong>${esc(x.client_name)}</strong>${x.comment ? `<br><small style="color: var(--muted);">${esc(x.comment)}</small>` : ''}</td>
+            <td>${esc(x.phone)}</td>
+            <td>${esc(x.from_location)} ➔ ${esc(x.to_location)}</td>
+            <td>${x.delivery_address ? esc(x.delivery_address) : '—'}</td>
+            <td>${esc(fmtDate(x.service_date))}</td>
+            <td><strong>${Number(x.amount).toLocaleString('ru-RU')} ₽</strong></td>
+          </tr>`).join('');
+        const total = items.reduce((sum, x) => sum + Number(x.amount || 0), 0);
+        summary.textContent = `Всего услуг: ${items.length} · на сумму ${total.toLocaleString('ru-RU')} ₽`;
+      } catch (err) {
+        if (err.message === 'UNAUTHORIZED') return;
+        console.error(err);
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--err);">Ошибка загрузки</td></tr>';
+      }
+    }
+
+    if (extraForm) {
+      const cities = Object.keys(CITY_STOPS.forward);
+      ['#esFromSel', '#esToSel'].forEach(sel => {
+        $(sel).innerHTML = '<option value="">Выберите город...</option>' + cities.map(c => `<option>${esc(c)}</option>`).join('');
+      });
+      const now = new Date(), pad = (n) => String(n).padStart(2, '0');
+      const todayIso = () => `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+      $('#esDate').value = todayIso();
+      $$('input[name="esType"]').forEach(r => r.addEventListener('change', setExtraType));
+      $('#esPhone').addEventListener('input', (e) => { e.target.value = formatPhone(e.target.value); });
+      setExtraType();
+
+      extraForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const { error, payload } = readExtraForm();
+        if (error) { alert(error); return; }
+        const btn = $('#esSubmit');
+        btn.disabled = true;
+        try {
+          const res = await adminFetch('/api/extra-services', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (res.ok) {
+            alert(payload.service_type === 'parcel' ? 'Посылка добавлена' : 'Трансфер добавлен');
+            const type = payload.service_type;
+            extraForm.reset();
+            $('#esDate').value = todayIso();
+            document.querySelector(`input[name="esType"][value="${type}"]`).checked = true;
+            setExtraType();
+            loadExtraServices();
+          } else if (res.status === 400) {
+            const body = await res.json().catch(() => ({}));
+            alert(body.detail || 'Проверьте данные услуги');
+          } else if (res.status === 422) {
+            alert('Проверьте данные: телефон должен быть полным, поля — заполнены корректно.');
+          } else {
+            alert('Ошибка сервера. Попробуйте позже.');
+          }
+        } catch (err) {
+          if (err.message !== 'UNAUTHORIZED') alert('Ошибка подключения к серверу');
+        } finally {
+          btn.disabled = false;
+        }
+      });
     }
 
     let applications = []; 
