@@ -69,6 +69,7 @@
         <!-- ВРЕМЕННО СКРЫТО: РАССЫЛКА
         <button class="btn btn--outline tab-btn" data-tab="subscribers"><i class="fa-solid fa-envelope-open-text"></i><span>Подписчики (Email)</span></button>
         -->
+        <button class="btn btn--outline tab-btn" data-tab="extra-services"><i class="fa-solid fa-box"></i><span>Доп. услуги</span></button>
         <button class="btn btn--outline tab-btn" data-tab="banned"><i class="fa-solid fa-user-slash"></i><span>Бан-лист</span></button>
       </nav>
 
@@ -198,6 +199,54 @@
           </div>
         </div>
         -->
+
+        <!-- ДОП. УСЛУГИ: ТРАНСФЕР И ПОСЫЛКИ -->
+        <div class="admin-section tab-content" id="tab-extra-services" style="display: none; margin-bottom: 30px;">
+          <h2 class="admin-section__title"><i class="fa-solid fa-box"></i> Дополнительные услуги</h2>
+          <p class="admin-section__hint">Трансфер — аренда авто в любой город. Посылка — попутная доставка по маршруту: отправитель не бронирует место и не едет сам.</p>
+          <form id="extraServiceForm" class="admin-form" autocomplete="off" novalidate>
+            <div class="seg-switch" role="radiogroup" aria-label="Тип услуги">
+              <input type="radio" name="esType" id="esTypeTransfer" value="transfer" checked>
+              <label for="esTypeTransfer"><i class="fa-solid fa-car"></i> Трансфер</label>
+              <input type="radio" name="esType" id="esTypeParcel" value="parcel">
+              <label for="esTypeParcel"><i class="fa-solid fa-box"></i> Посылка</label>
+            </div>
+
+            <div class="field"><label id="esNameLabel" for="esName">Имя клиента *</label><input type="text" id="esName" maxlength="100"></div>
+            <div class="field"><label id="esPhoneLabel" for="esPhone">Телефон клиента *</label><input type="tel" id="esPhone" placeholder="+7 (___) ___-__-__"></div>
+
+            <!-- Трансфер: любые города и адреса -->
+            <div class="field es-transfer-only"><label for="esFromText">Откуда (город) *</label><input type="text" id="esFromText" maxlength="255" placeholder="Например, Магнитогорск"></div>
+            <div class="field es-transfer-only"><label for="esToText">Куда (город) *</label><input type="text" id="esToText" maxlength="255" placeholder="Любой город РФ"></div>
+
+            <!-- Посылка: города маршрута -->
+            <div class="field es-parcel-only" hidden><label for="esFromSel">Откуда (город маршрута) *</label><select id="esFromSel"></select></div>
+            <div class="field es-parcel-only" hidden><label for="esToSel">Куда (город маршрута) *</label><select id="esToSel"></select></div>
+            <div class="field field--wide es-parcel-only" hidden><label for="esDelivery">Точный адрес доставки *</label><input type="text" id="esDelivery" maxlength="500" placeholder="Например, Оренбург, ресторан «Сыр», ул. Салмышская 17"></div>
+
+            <div class="field"><label for="esDate">Дата *</label><input type="date" id="esDate"></div>
+            <div class="field"><label for="esAmount">Стоимость, ₽ *</label><input type="number" id="esAmount" min="0" step="1" inputmode="numeric" placeholder="0"></div>
+            <div class="field field--wide"><label for="esComment">Комментарий</label><input type="text" id="esComment" maxlength="1000"></div>
+
+            <button type="submit" class="btn btn--cta admin-form__submit" id="esSubmit">Добавить услугу</button>
+          </form>
+        </div>
+
+        <div class="tab-content" id="tab-extra-services-table" style="display: none;">
+          <h1 class="admin-title">Все дополнительные услуги</h1>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Тип</th><th>Клиент</th><th>Телефон</th><th>Маршрут</th><th>Адрес доставки</th><th>Дата</th><th>Сумма</th>
+                </tr>
+              </thead>
+              <tbody id="extraServicesTableBody"></tbody>
+            </table>
+            <p class="table-empty" id="extraServicesEmpty" hidden>Услуг пока нет.</p>
+          </div>
+          <p class="extra-summary" id="extraServicesSummary"></p>
+        </div>
 
         <!-- БАН-ЛИСТ -->
         <div class="tab-content" id="tab-banned-table" style="display: none;">
