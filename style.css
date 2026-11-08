@@ -661,3 +661,7 @@ section[id]{ scroll-margin-top:84px; }
 .modal__card--privacy .modal__actions{ margin-top:18px; }
 .footer__legal a{ text-decoration:underline; text-underline-offset:2px; }
 .footer__legal a:hover{ color:#fff; }
+
+/* Ручная заявка в админке */
+.manual-footer{ grid-column:1 / -1; display:flex; align-items:center; flex-wrap:wrap; gap:8px 20px; font-size:14px; color:var(--muted); }
+.manual-footer strong{ font-size:22px; font-weight:700; color:var(--brand); }
