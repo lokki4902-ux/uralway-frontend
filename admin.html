@@ -121,6 +121,32 @@
           </div>
         </div>
 
+        <!-- РУЧНАЯ ЗАЯВКА (клиент позвонил) -->
+        <div class="admin-section tab-content active" id="tab-manual-booking" style="margin-bottom: 36px;">
+          <h2 class="admin-section__title"><i class="fa-solid fa-phone-volume"></i> Заявка по звонку</h2>
+          <p class="admin-section__hint">Для клиентов, которые бронируют по телефону. Заявка попадёт в общий список и будет передана в Яндекс.Метрику как офлайн-визит. Перед записью получите согласие клиента на обработку персональных данных.</p>
+          <form id="manualBookingForm" class="admin-form" autocomplete="off">
+            <div class="field"><label>Имя клиента *</label><input type="text" id="mbName" required maxlength="100"></div>
+            <div class="field"><label>Телефон *</label><input type="tel" id="mbPhone" required placeholder="+7 (___) ___-__-__"></div>
+            <div class="field"><label>Email (необязательно)</label><input type="email" id="mbEmail"></div>
+            <div class="field"><label>Рейс *</label><select id="mbTrip" required><option value="">Выберите рейс...</option></select></div>
+            <div class="field"><label>Откуда *</label><select id="mbFrom" required></select></div>
+            <div class="field"><label>Куда *</label><select id="mbTo" required></select></div>
+            <div class="field"><label>Мест *</label>
+              <select id="mbSeats">
+                <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option>
+              </select>
+            </div>
+            <div class="field"><label>Точка посадки *</label><select id="mbStop" disabled><option value="">Сначала выберите «Откуда»</option></select></div>
+            <div class="field field--wide"><label>Комментарий</label><input type="text" id="mbComment" maxlength="300"></div>
+            <div class="manual-footer">
+              <span>Стоимость: <strong id="mbPrice">0 ₽</strong></span>
+              <span class="seats-hint" id="mbHint"></span>
+            </div>
+            <button type="submit" class="btn btn--cta admin-form__submit" id="mbSubmit">Создать заявку</button>
+          </form>
+        </div>
+
         <!-- ЗАЯВКИ -->
         <div class="tab-content active" id="tab-bookings-table">
           <h1 class="admin-title">Панель управления заявками</h1>
