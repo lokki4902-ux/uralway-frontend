@@ -66,10 +66,8 @@
         <span class="admin-nav__label">Разделы</span>
         <button class="btn btn--cta tab-btn active" data-tab="bookings"><i class="fa-solid fa-ticket"></i><span>Заявки и рейсы</span></button>
 
-        <!-- ВРЕМЕННО СКРЫТО: РАССЫЛКА
-        <button class="btn btn--outline tab-btn" data-tab="subscribers"><i class="fa-solid fa-envelope-open-text"></i><span>Подписчики (Email)</span></button>
-        -->
         <button class="btn btn--outline tab-btn" data-tab="extra-services"><i class="fa-solid fa-box"></i><span>Доп. услуги</span></button>
+        <button class="btn btn--outline tab-btn" data-tab="reviews"><i class="fa-solid fa-star"></i><span>Отзывы</span></button>
         <button class="btn btn--outline tab-btn" data-tab="banned"><i class="fa-solid fa-user-slash"></i><span>Бан-лист</span></button>
       </nav>
 
@@ -182,24 +180,6 @@
           </div>
         </div>
 
-        <!-- ПОДПИСЧИКИ -->
-        <!-- ВРЕМЕННО СКРЫТО: РАССЫЛКА
-        <div class="tab-content" id="tab-subscribers-table" style="display: none;">
-          <h1 class="admin-title">База подписчиков</h1>
-          <div class="table-wrap">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>ID</th><th>Email</th><th>Дата подписки</th>
-                </tr>
-              </thead>
-              <tbody id="subscribersTableBody"></tbody>
-            </table>
-            <p class="table-empty" id="subsTableEmpty" hidden>Подписчиков пока нет.</p>
-          </div>
-        </div>
-        -->
-
         <!-- ДОП. УСЛУГИ: ТРАНСФЕР И ПОСЫЛКИ -->
         <div class="admin-section tab-content" id="tab-extra-services" style="display: none; margin-bottom: 30px;">
           <h2 class="admin-section__title"><i class="fa-solid fa-box"></i> Дополнительные услуги</h2>
@@ -246,6 +226,20 @@
             <p class="table-empty" id="extraServicesEmpty" hidden>Услуг пока нет.</p>
           </div>
           <p class="extra-summary" id="extraServicesSummary"></p>
+        </div>
+
+        <!-- ОТЗЫВЫ (модерация) -->
+        <div class="tab-content" id="tab-reviews-table" style="display: none;">
+          <h1 class="admin-title">Отзывы клиентов</h1>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr><th>Дата</th><th>Имя</th><th>Оценка</th><th>Отзыв</th><th>Действия</th></tr>
+              </thead>
+              <tbody id="reviewsTableBody"></tbody>
+            </table>
+            <p class="table-empty" id="reviewsEmpty" hidden>Отзывов пока нет.</p>
+          </div>
         </div>
 
         <!-- БАН-ЛИСТ -->
