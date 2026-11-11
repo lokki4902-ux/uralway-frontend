@@ -356,17 +356,6 @@ section[id]{ scroll-margin-top:84px; }
 .footer-route__total{ margin-top:8px; font-size:13px; color:#fff; }
 .footer__bottom{ padding:22px 0 30px; text-align:center; font-size:13px; color:rgba(255,255,255,.55); border-top:1px solid rgba(255,255,255,.12); }
 
-.footer-subscribe{ margin-top:26px; }
-.footer-subscribe__title{ margin-bottom:6px; font-size:14px; color:#fff; }
-.footer-subscribe__desc{ margin-bottom:12px; font-size:13.5px; }
-.subscribe-form__group{ display:flex; gap:8px; }
-.subscribe-form input[type="email"]{ flex:1; min-height:44px; padding:10px 14px; color:var(--text); background:#fff; border:1px solid var(--line-strong); border-radius:10px; outline:none; }
-.subscribe-form button{ min-height:44px; padding:10px 20px; border-radius:10px; font-weight:600; color:#fff; background:var(--primary); }
-.subscribe-form button:disabled{ opacity:.5; cursor:not-allowed; }
-.subscribe-messages{ margin-top:8px; font-size:13px; }
-.sub-msg--success{ color:#7DD9A8; }
-.sub-msg--error{ color:#F4A59D; }
-.sub-msg--warning{ color:#F5C26B; }
 
 /* ---------- Плавающая панель ---------- */
 .social-sidebar{
@@ -469,7 +458,6 @@ section[id]{ scroll-margin-top:84px; }
   .route-prices-grid{ grid-template-columns:1fr; }
   .footer__grid{ grid-template-columns:1fr; }
   .footer__list--nav{ columns:2; }
-  .subscribe-form__group{ flex-direction:column; }
   .modal__card{ padding:30px 20px 24px; }
   .modal__btn{ width:100%; }
   .modal__actions{ flex-direction:column-reverse; }
