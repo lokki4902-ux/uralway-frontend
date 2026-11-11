@@ -188,7 +188,24 @@
   const fmtDate = (iso) => /^\d{4}-\d{2}-\d{2}$/.test(iso || '') ? iso.split('-').reverse().join('.') : (iso || '—');
   // Экранирование данных, которые вводят пользователи (имя, email, комментарий) — защита админки от HTML-вставок
   const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const getTrips = () => JSON.parse(localStorage.getItem('uralway_announcements') || '[]');
+  // Рейсы хранятся на сервере (GET /api/announcements). Локальная копия нужна для синхронных обращений.
+  let tripsCache = [];
+  const getTrips = () => tripsCache;
+  const toTrip = (a) => ({
+    id: a.id, cycleId: a.cycle_id, direction: a.direction, driverId: String(a.driver_id),
+    date: a.date, time: a.time, address: a.address, occupiedSeats: a.occupied_seats || 0
+  });
+  async function loadTrips() {
+    try {
+      const res = await fetch(`${API_URL}/api/announcements`);
+      if (!res.ok) throw new Error('announcements ' + res.status);
+      tripsCache = (await res.json()).map(toTrip);
+      return true;
+    } catch (e) {
+      console.error('Не удалось загрузить рейсы', e); // старая копия остаётся
+      return false;
+    }
+  }
 
   // Рейсы по возрастанию даты/времени; i — индекс в исходном массиве (он же value в #fTrip)
   function sortedTrips() {
@@ -446,8 +463,6 @@
       } catch (e) { console.error('Не удалось получить занятость рейса', e); }
     });
   }
-  renderAnnouncements();
-
   // ---- ЗАПОЛНЕНИЕ СПИСКА РЕЙСОВ ----
   function populateTrips() {
     const tripSelect = $('#fTrip');
@@ -457,7 +472,15 @@
     tripSelect.innerHTML = '<option value="">Выберите рейс...</option>' +
       list.map(({ a, i }) => `<option value="${i}">Дата: ${fmtDate(a.date)} в ${a.time}, ${DIR_LABEL[tripDir(a)]}</option>`).join('');
   }
-  populateTrips();
+
+
+  // Загружает рейсы с сервера и перерисовывает карточки и выпадающий список формы
+  async function refreshTrips() {
+    await loadTrips();
+    renderAnnouncements();
+    populateTrips();
+  }
+  if ($('#announcementsGrid') || $('#fTrip')) refreshTrips();
 
   // ---- ФОРМА БРОНИРОВАНИЯ ----
   const form = $('#bookingForm');
@@ -807,8 +830,7 @@
       });
 
       const tripIndex = $('#fTrip').value;
-      const announcements = JSON.parse(localStorage.getItem('uralway_announcements') || '[]');
-      const selectedTrip = announcements[tripIndex];
+      const selectedTrip = getTrips()[tripIndex];
 
       const originalBtnText = submitBtn.textContent;
       submitBtn.textContent = 'Отправка...';
@@ -910,8 +932,7 @@
         tripOccupancy = null;
         $$('.passenger-row', container).forEach(r => { syncRouteOptions(r); refreshStopSelect(r); });
         calculateTotal();
-        populateTrips();
-        renderAnnouncements();
+        refreshTrips();
 
       } catch (error) {
         if (error.message === 'RATE_LIMIT') {
@@ -939,56 +960,8 @@
     }
   }
 
-  // ---- ФОРМА ПОДПИСКИ ----
- /* ВРЕМЕННО СКРЫТО: ФОРМА ПОДПИСКИ
-  const subForm = $('#subscribeForm');
-  if (subForm) {
-    subForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const emailInput = $('#subEmail');
-      const email = emailInput.value.trim();
-      const btn = $('#subBtn');
-      const msgBox = $('#subMessages');
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-      if (!emailRegex.test(email)) {
-        msgBox.innerHTML = '<div class="sub-msg sub-msg--error">✗ Пожалуйста, введите корректный email.</div>';
-        return;
-      }
-
-      btn.textContent = 'Отправка...';
-      btn.disabled = true;
-      msgBox.innerHTML = '';
-
-      try {
-        const response = await fetch(`${API_URL}/api/subscribe`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email })
-        });
-
-        if (response.ok) {
-          msgBox.innerHTML = '<div class="sub-msg sub-msg--success">✓ Спасибо за подписку! Мы будем отправлять вам анонсы рейсов.</div>';
-          subForm.reset();
-        } else if (response.status === 429) {
-          msgBox.innerHTML = '<div class="sub-msg sub-msg--warning" style="color:#d97706;">Слишком много попыток. Подождите минуту.</div>';
-        } else if (response.status === 400) {
-          msgBox.innerHTML = '<div class="sub-msg sub-msg--warning" style="color:#d97706;">Этот email уже подписан на рассылку.</div>';
-        } else {
-          throw new Error('Server Error');
-        }
-      } catch (error) {
-        msgBox.innerHTML = '<div class="sub-msg sub-msg--error">Ошибка подключения. Попробуйте позже.</div>';
-      } finally {
-        btn.textContent = 'ПОДПИСАТЬСЯ';
-        btn.disabled = false;
-        setTimeout(() => { msgBox.innerHTML = ''; }, 5000);
-      }
-    });
-  }
- */
-  // ---- ОТЗЫВЫ ----
-  const REVIEWS_KEY = 'uralway_reviews';
+  // ---- ОТЗЫВЫ (хранятся на сервере: GET/POST /api/reviews) ----
+  let reviewsData = [];
   let showAllReviews = false; // Флаг: показывать все или только 3
 
   function getStarsHtml(rating) {
@@ -996,34 +969,44 @@
     for (let i = 1; i <= 5; i++) html += `<i class="fa-solid fa-star" style="color:${i <= rating ? 'var(--accent)' : '#d1d5db'}"></i>`;
     return html;
   }
-  
+
+  async function loadReviews() {
+    try {
+      const res = await fetch(`${API_URL}/api/reviews`);
+      if (!res.ok) throw new Error('reviews ' + res.status);
+      reviewsData = await res.json();
+      return true;
+    } catch (e) {
+      console.error('Не удалось загрузить отзывы', e);
+      return false;
+    }
+  }
+
   function renderReviews() {
     const list = $('#reviewsList');
     const btn = $('#showMoreReviewsBtn');
     if (!list) return;
-    
-    let reviews = JSON.parse(localStorage.getItem(REVIEWS_KEY) || '[]');
-    let totalStars = reviews.reduce((sum, r) => sum + r.rating, 0);
+
+    const reviews = reviewsData; // сервер отдаёт новые отзывы первыми
+    const totalStars = reviews.reduce((sum, r) => sum + r.rating, 0);
     const avg = reviews.length ? (totalStars / reviews.length) : 0;
 
-    if($('#avgRatingNum')) $('#avgRatingNum').textContent = avg.toFixed(1);
-    if($('#reviewsCount')) $('#reviewsCount').textContent = reviews.length === 0 ? 'Нет отзывов' : `${reviews.length} отзыв(ов)`;
-    if($('#avgRatingStars')) $('#avgRatingStars').style.width = `${(avg / 5) * 100}%`;
+    if ($('#avgRatingNum')) $('#avgRatingNum').textContent = avg.toFixed(1);
+    if ($('#reviewsCount')) $('#reviewsCount').textContent = reviews.length === 0 ? 'Нет отзывов' : `${reviews.length} отзыв(ов)`;
+    if ($('#avgRatingStars')) $('#avgRatingStars').style.width = `${(avg / 5) * 100}%`;
 
     if (reviews.length === 0) {
       list.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:var(--muted);">Пока нет отзывов. Станьте первым!</p>';
-      if(btn) btn.style.display = 'none';
+      if (btn) btn.style.display = 'none';
       return;
     }
 
-    const sortedRevs = [...reviews].reverse();
-    const displayRevs = showAllReviews ? sortedRevs : sortedRevs.slice(0, 3);
-
+    const displayRevs = showAllReviews ? reviews : reviews.slice(0, 3);
     list.innerHTML = displayRevs.map(r => `
       <article class="review-card">
         <div class="review-card__stars">${getStarsHtml(r.rating)}</div>
         <p class="review-card__text">${esc(r.text)}</p>
-        <div class="review-card__meta"><span class="review-card__name">${esc(r.name)}</span><span class="review-card__date">${esc(r.date)}</span></div>
+        <div class="review-card__meta"><span class="review-card__name">${esc(r.name)}</span><span class="review-card__date">${esc(fmtDate((r.created_at || '').slice(0, 10)))}</span></div>
       </article>
     `).join('');
 
@@ -1036,7 +1019,9 @@
       }
     }
   }
-  
+
+  async function refreshReviews() { await loadReviews(); renderReviews(); }
+
   const showMoreBtn = $('#showMoreReviewsBtn');
   if (showMoreBtn) {
     showMoreBtn.addEventListener('click', () => {
@@ -1045,7 +1030,7 @@
     });
   }
 
-  renderReviews();
+  if ($('#reviewsList')) refreshReviews();
 
   // ---- ПОЛИТИКА КОНФИДЕНЦИАЛЬНОСТИ (модальное окно) ----
   const privacyModal = $('#privacyModal');
@@ -1083,32 +1068,48 @@
     $('#reviewForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = $('#rName'), phone = $('#rPhone'), email = $('#rEmail'), text = $('#rText'), ratingInput = $('input[name="rating"]:checked');
-      
+      const consent = $('#rConsent');
+
       let isValid = true;
       if (!name.value.trim()) { setError(name, 'Укажите имя'); isValid = false; } else setError(name, '');
       if (!phone.value.trim() || phone.value.length < 18) { setError(phone, 'Формат: +7 (XXX) XXX-XX-XX'); isValid = false; } else setError(phone, '');
       if (!email.value.trim() || !email.value.includes('@')) { setError(email, 'Некорректный e-mail'); isValid = false; } else setError(email, '');
       if (!text.value.trim()) { setError(text, 'Напишите отзыв'); isValid = false; } else setError(text, '');
       if (!ratingInput) { alert('Поставьте оценку'); isValid = false; }
+      else if (consent && !consent.checked) { alert('Подтвердите согласие с политикой конфиденциальности'); isValid = false; }
       if (!isValid) return;
 
+      const submitBtn = $('#reviewForm button[type="submit"]');
+      submitBtn.disabled = true;
       try {
-        const banRes = await fetch(`${API_URL}/api/check_ban/${encodeURIComponent(phone.value.trim())}`);
-        const banData = await banRes.json();
-        if (banData.is_banned) {
+        const res = await fetch(`${API_URL}/api/reviews`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: name.value.trim(), phone: phone.value.trim(), email: email.value.trim(),
+            rating: Number(ratingInput.value), text: text.value.trim(), consent: true
+          })
+        });
+        if (res.ok) {
+          closeReviewModal();
+          await refreshReviews();
+        } else if (res.status === 403) {
           alert(`Ваш номер телефона находится в черном списке. Вы не можете оставлять отзывы. Свяжитесь с администратором: ${ADMIN_PHONES.join(' или ')}.`);
-          return;
+        } else if (res.status === 429) {
+          alert('Слишком много попыток. Подождите минуту и попробуйте снова.');
+        } else if (res.status === 400) {
+          const body = await res.json().catch(() => ({}));
+          alert(body.detail || 'Не удалось отправить отзыв');
+        } else if (res.status === 422) {
+          alert('Проверьте данные отзыва: телефон и e-mail должны быть корректными.');
+        } else {
+          throw new Error('Server Error');
         }
       } catch (err) {
-        console.error("Ошибка проверки бана", err);
+        alert('Ошибка при отправке отзыва. Пожалуйста, попробуйте позже.');
+      } finally {
+        submitBtn.disabled = false;
       }
-
-      const newReview = { id: Date.now(), name: name.value, phone: phone.value, email: email.value, rating: Number(ratingInput.value), text: text.value, date: new Date().toLocaleDateString('ru-RU') };
-      const stored = JSON.parse(localStorage.getItem(REVIEWS_KEY) || '[]');
-      stored.push(newReview);
-      localStorage.setItem(REVIEWS_KEY, JSON.stringify(stored));
-      closeReviewModal();
-      renderReviews();
     });
   }
 
@@ -1123,11 +1124,11 @@
 
     const STATUS_LABEL = { new: 'Новая', confirmed: 'Подтверждена', cancelled: 'Отменена', completed: 'Завершена' };
 
-    // Блоки каждой вкладки. Отсутствующие в HTML (например, закомментированные подписчики) просто пропускаются —
-    // раньше обращение к null.style обрывало обработчик, и бан-лист оставался скрытым.
+    // Блоки каждой вкладки. Отсутствующие в HTML блоки пропускаются (иначе обращение к null.style
+    // обрывало обработчик, и вкладка оставалась скрытой).
     const TAB_BLOCKS = {
       bookings: ['tab-bookings', 'tab-trips', 'tab-manual-booking', 'tab-bookings-table'],
-      subscribers: ['tab-subscribers-table'],
+      reviews: ['tab-reviews-table'],
       'extra-services': ['tab-extra-services', 'tab-extra-services-table'],
       banned: ['tab-banned-table']
     };
@@ -1149,7 +1150,7 @@
         if (split) split.style.display = target === 'bookings' ? '' : 'none';
 
         if (target === 'banned') renderBannedUsers();
-        else if (target === 'subscribers') renderSubscribers();
+        else if (target === 'reviews') loadAdminReviews();
         else if (target === 'extra-services') loadExtraServices();
       });
     });
@@ -1237,45 +1238,45 @@
           alert('Укажите время старта в 24-часовом формате, например 09:00 или 16:30.');
           return;
         }
-
         if (`${back.date}T${back.time}` < `${forward.date}T${forward.time}`) {
           alert('Обратный рейс не может быть раньше рейса «Туда».');
           return;
         }
 
-        // 1. Две связанные записи (общий cycleId): «Туда» и «Обратно» — у каждой своя шкала занятости
-        const cycleId = Date.now();
-        const base = { cycleId, driverId, occupiedSeats: 0, phone: ADMIN_PHONES.join(', ') };
-        const stored = getTrips();
-        stored.push({ ...base, id: cycleId, direction: 'forward', ...forward });
-        stored.push({ ...base, id: cycleId + 1, direction: 'return', ...back });
-        localStorage.setItem('uralway_announcements', JSON.stringify(stored));
-        renderAdminTrips();
-
-        // 2. Рассылка подписчикам: один email про весь цикл
+        const btn = addAnnForm.querySelector('button[type="submit"]');
+        btn.disabled = true;
         try {
-          const response = await adminFetch('/api/notify_subscribers', {
+          // «Туда» и «Обратно» создаются на сервере одной транзакцией и связываются между собой
+          const res = await adminFetch('/api/announcements/cycle', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...forward, return_date: back.date, return_time: back.time, return_address: back.address })
+            body: JSON.stringify({ driver_id: driverId, forward, back })
           });
-
-          if (response.ok) {
-            alert('Цикл поездки добавлен (туда и обратно), рассылка писем запущена!');
+          if (res.ok) {
+            alert('Цикл поездки добавлен (туда и обратно)');
+            addAnnForm.reset();
+            await renderAdminTrips();
+          } else if (res.status === 400) {
+            const body = await res.json().catch(() => ({}));
+            alert(body.detail || 'Проверьте данные рейсов');
+          } else if (res.status === 422) {
+            alert('Проверьте данные рейсов: даты, время (ЧЧ:ММ) и адреса.');
           } else {
-            alert('Цикл добавлен, но произошла ошибка при запуске рассылки.');
+            alert('Ошибка сервера. Попробуйте позже.');
           }
-        } catch (error) {
-          alert('Цикл добавлен, но сервер рассылки недоступен.');
+        } catch (err) {
+          if (err.message !== 'UNAUTHORIZED') alert('Ошибка подключения к серверу');
+        } finally {
+          btn.disabled = false;
         }
-
-        addAnnForm.reset();
       });
     }
 
     async function renderAdminTrips() {
       const list = $('#adminTripsList');
       if (!list) return;
+      const loaded = await loadTrips(); // рейсы всегда берём с сервера
+      if (!loaded && getTrips().length === 0) { list.innerHTML = '<p style="color:var(--err);">Не удалось загрузить рейсы с сервера</p>'; return; }
       fillManualTrips(); // список рейсов в форме ручной заявки
       const items = sortedTrips();
       if (items.length === 0) { list.innerHTML = '<p style="color:var(--muted);">Нет созданных рейсов.</p>'; return; }
@@ -1305,21 +1306,25 @@
       }));
     }
 
-    window.deleteAdminTrip = (id) => {
-      const data = getTrips();
-      const rec = data.find(a => a.id === id);
+    window.deleteAdminTrip = async (id) => {
+      const rec = getTrips().find(a => a.id === id);
       if (!rec) return;
-      const partner = rec.cycleId ? data.find(a => a.cycleId === rec.cycleId && a.id !== id) : null;
-      let ids = null;
+      const partner = rec.cycleId ? getTrips().find(a => a.cycleId === rec.cycleId && a.id !== id) : null;
+      let withCycle = null; // null — пользователь отказался
       if (partner) {
-        if (confirm('Удалить ОБА рейса цикла (туда и обратно)?')) ids = [rec.id, partner.id];
-        else if (confirm('Удалить только этот рейс?')) ids = [rec.id];
+        if (confirm('Удалить ОБА рейса цикла (туда и обратно)?')) withCycle = true;
+        else if (confirm('Удалить только этот рейс?')) withCycle = false;
       } else if (confirm('Удалить этот рейс?')) {
-        ids = [rec.id];
+        withCycle = false;
       }
-      if (!ids) return;
-      localStorage.setItem('uralway_announcements', JSON.stringify(data.filter(a => !ids.includes(a.id))));
-      renderAdminTrips();
+      if (withCycle === null) return;
+      try {
+        const res = await adminFetch(`/api/announcements/${id}?with_cycle=${withCycle}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('delete ' + res.status);
+        await renderAdminTrips();
+      } catch (err) {
+        if (err.message !== 'UNAUTHORIZED') alert('Не удалось удалить рейс');
+      }
     };
 
     // ---- РУЧНАЯ ЗАЯВКА (клиент позвонил): создаётся на сервере и передаётся в Яндекс.Метрику как офлайн-визит ----
@@ -1636,21 +1641,42 @@
       } catch (error) { if (error.message !== 'UNAUTHORIZED') alert('Ошибка подключения'); }
     };
 
-    async function renderSubscribers() {
-      const tbody = $('#subscribersTableBody');
+    // ---- ОТЗЫВЫ: модерация (удаление) ----
+    async function loadAdminReviews() {
+      const tbody = $('#reviewsTableBody');
       if (!tbody) return;
-      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Загрузка...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Загрузка...</td></tr>';
       try {
-        const response = await adminFetch('/api/subscribers');
-        if (!response.ok) throw new Error('subscribers ' + response.status);
-        const subs = await response.json();
-        if (subs.length === 0) { tbody.innerHTML = ''; $('#subsTableEmpty').hidden = false; return; }
-        $('#subsTableEmpty').hidden = true;
-        tbody.innerHTML = subs.map(s => `
-          <tr><td>${s.id}</td><td><strong>${esc(s.email)}</strong></td><td>${new Date(s.created_at).toLocaleString('ru-RU')}</td></tr>
-        `).join('');
-      } catch (error) { tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:red;">Ошибка загрузки</td></tr>'; }
+        const res = await fetch(`${API_URL}/api/reviews?limit=500`);
+        if (!res.ok) throw new Error('reviews ' + res.status);
+        const items = await res.json();
+        const empty = $('#reviewsEmpty');
+        if (items.length === 0) { tbody.innerHTML = ''; empty.hidden = false; return; }
+        empty.hidden = true;
+        tbody.innerHTML = items.map(r => `
+          <tr>
+            <td>${esc(fmtDate((r.created_at || '').slice(0, 10)))}</td>
+            <td><strong>${esc(r.name)}</strong></td>
+            <td style="white-space:nowrap;">${getStarsHtml(r.rating)}</td>
+            <td style="max-width:420px; word-break:break-word;">${esc(r.text)}</td>
+            <td><button class="row-btn row-btn--delete" onclick="deleteReview(${Number(r.id)})">Удалить</button></td>
+          </tr>`).join('');
+      } catch (err) {
+        console.error(err);
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--err);">Ошибка загрузки</td></tr>';
+      }
     }
+
+    window.deleteReview = async (id) => {
+      if (!confirm('Удалить этот отзыв?')) return;
+      try {
+        const res = await adminFetch(`/api/reviews/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('delete ' + res.status);
+        loadAdminReviews();
+      } catch (err) {
+        if (err.message !== 'UNAUTHORIZED') alert('Не удалось удалить отзыв');
+      }
+    };
 
     async function renderBannedUsers() {
       const tbody = $('#bannedTableBody');
